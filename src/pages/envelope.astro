@@ -1,0 +1,55 @@
+---
+import Layout from "../layouts/Layout.astro";
+const base = import.meta.env.BASE_URL;
+---
+
+<Layout title="Building Envelope">
+  <span class="page-tag">Structure</span>
+  <h1>Building Envelope</h1>
+  <p class="lead">Walls, insulation, roof, siding, and interior finishes.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Component</th><th>Spec</th><th>Links</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Walls</strong></td>
+          <td>Rockwool ComfortBatt (R-15 in 2&times;4 or R-23 in 2&times;6). Smart vapor retarder (Intello Plus or Majrex) interior. Rain screen gap behind siding.</td>
+          <td><a href="https://www.rockwool.com/north-america/products-and-applications/products/comfortbatt/" target="_blank" rel="noopener">Rockwool ComfortBatt</a></td>
+        </tr>
+        <tr>
+          <td><strong>Exterior insulation</strong></td>
+          <td>Wood fiber board (Gutex/Steico). R-3.7–4 per inch, vapor-open, low embodied carbon.</td>
+          <td><a href="https://gutex.com/" target="_blank" rel="noopener">Gutex</a> · <a href="https://www.steico.com/en" target="_blank" rel="noopener">Steico</a></td>
+        </tr>
+        <tr>
+          <td><strong>Floor</strong></td>
+          <td>Rockwool batts in joist bays. Protected by galvanized belly pan.</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><strong>Roof</strong></td>
+          <td>Shed roof, 4/12 to 5/12 pitch — metal standing seam. High side on porch, snow slides to interior side. Metal required for potable rainwater catchment. Dense-pack cellulose or Rockwool in rafter bays. Clerestory window potential on high wall above porch roof line.</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><strong>Siding</strong></td>
+          <td>Real wood — local species (cedar, poplar, or hemlock). Local sawmill sourcing. Dark/black stain possible.</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><strong>Interior</strong></td>
+          <td>White VJ board/shiplap walls, exposed timber beams, timber trim. Timber slab counters (kitchen + bath). Reclaimed windows where possible. Brass fixtures. No formaldehyde.</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="page-nav">
+    <a href={`${base}appliances/`}>&larr; Appliances</a>
+    <a href={`${base}rainwater/`} class="next">Rainwater &rarr;</a>
+  </div>
+</Layout>

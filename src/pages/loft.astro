@@ -1,0 +1,36 @@
+---
+import Layout from "../layouts/Layout.astro";
+const base = import.meta.env.BASE_URL;
+---
+
+<Layout title="Bedroom Loft">
+  <span class="page-tag">Upstairs</span>
+  <h1>Bedroom Loft</h1>
+  <p class="lead">~10' long (8' over bathroom + 2' into kitchen) &times; 8'6" wide.</p>
+
+  <div class="table-wrap">
+    <table class="kv">
+      <tbody>
+        <tr><td>Bed</td><td>King (80" &times; 76") oriented lengthwise along trailer. Structural lift-up platform with gas struts, ~35–40 cu ft storage below. No finish floor under mattress.</td></tr>
+        <tr><td>Ledges</td><td>~11" built-in ledges on both long sides, bed length only (80"). Flush with mattress — nightstand surfaces. Do not extend past foot of bed.</td></tr>
+        <tr><td>Windows</td><td>Large gable-end window (sunrise/sunset) + 30&times;30 <a href="https://www.velux.com/what-we-do/products/skylights" target="_blank" rel="noopener">Velux</a> venting skylight over bed + 30&times;30 skylight over kitchen.</td></tr>
+        <tr><td>Access</td><td>Alternating tread stairs from living zone, ~7–8 steps. Partial wall divider at foot of bed, ~28" standing area where stairs arrive. Platform hinged at gable end, lifts toward standing area. Pipe railing.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Loft Heights</h2>
+  <p>With drop-axle trailer at 22" deck height:</p>
+
+  <ul>
+    <li>13'6" max legal height minus 22" trailer = <strong>140" available</strong></li>
+    <li>Minus ~7" roof assembly, ~4.5" loft floor structure = <strong>~128.5" split</strong> between main floor and loft</li>
+    <li>Main floor ceiling at 6'4"–6'8" leaves <strong>~4'0"–4'4"</strong> at the high side of the loft (porch side)</li>
+    <li>Shed roof drops ~34" across 8'6" width at 4/12 pitch, so low side is <strong>~14"–18"</strong> (bed ledge side — fine for lying down)</li>
+  </ul>
+
+  <div class="page-nav">
+    <a href={`${base}layout/`}>&larr; Layout</a>
+    <a href={`${base}appliances/`} class="next">Appliances &rarr;</a>
+  </div>
+</Layout>

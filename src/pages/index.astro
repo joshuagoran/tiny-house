@@ -1,0 +1,64 @@
+---
+import Layout from "../layouts/Layout.astro";
+const base = import.meta.env.BASE_URL;
+---
+
+<Layout title="Overview">
+  <span class="page-tag">Planning Document</span>
+  <h1>Tiny House on Trailer</h1>
+  <p class="lead">Marshall, NC area — self-built with contractor friend. Low-toxicity, low embodied carbon, high efficiency.</p>
+
+  <div class="table-wrap">
+    <table class="kv">
+      <tbody>
+        <tr><td>Trailer</td><td>28' &times; 8'6" purpose-built, galvanized belly pan. May revise to 26'.</td></tr>
+        <tr><td>Climate</td><td>Zone 4A/5A — western NC mountains. Possible future move to Woodstock, NY.</td></tr>
+        <tr><td>Build</td><td>Self-built with contractor friend</td></tr>
+        <tr><td>Goals</td><td>Low-toxicity, low embodied carbon, high efficiency</td></tr>
+        <tr><td>Electrical</td><td>50A inlet plug — grid-ready, solar/microgrid compatible. Ground-mounted solar + battery bank in outbuilding. Shared microgrid possible.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <blockquote>
+    <p><strong>Design reference:</strong> Rosie &amp; Caleb's DIY tiny house, Tasmania — <a href="https://www.livingbiginatinyhouse.com/episodes/this-tiny-home-is-part-of-something-much-bigger/" target="_blank" rel="noopener">Living Big in a Tiny House</a>. White VJ board walls, exposed timber beams, timber slab counters, brass fixtures, reclaimed windows, patterned terracotta bathroom tile. Feeling over function.</p>
+  </blockquote>
+
+  <h2>Sections</h2>
+
+  <div class="nav-cards">
+    <a href={`${base}layout/`} class="nav-card">
+      <h3>Layout</h3>
+      <p>Main floor zones, bathroom, kitchen, living area, and covered porch.</p>
+    </a>
+    <a href={`${base}loft/`} class="nav-card">
+      <h3>Bedroom Loft</h3>
+      <p>King bed platform, storage, skylights, and height calculations.</p>
+    </a>
+    <a href={`${base}appliances/`} class="nav-card">
+      <h3>Appliances &amp; Systems</h3>
+      <p>Kitchen, heating, hot water, bathroom fixtures, and dining.</p>
+    </a>
+    <a href={`${base}envelope/`} class="nav-card">
+      <h3>Building Envelope</h3>
+      <p>Walls, insulation, roof, siding, and interior finishes.</p>
+    </a>
+    <a href={`${base}rainwater/`} class="nav-card">
+      <h3>Rainwater Catchment</h3>
+      <p>Collection, storage, filtration, and annual capture estimates.</p>
+    </a>
+    <a href={`${base}electrical/`} class="nav-card">
+      <h3>Electrical &amp; Solar</h3>
+      <p>House circuits, solar array, battery options, and inverter comparison.</p>
+    </a>
+    <a href={`${base}open-questions/`} class="nav-card">
+      <h3>Open Questions</h3>
+      <p>Unresolved decisions on trailer length, stove, siding, and more.</p>
+    </a>
+  </div>
+
+  <div class="page-nav">
+    <span></span>
+    <a href={`${base}layout/`} class="next">Layout &rarr;</a>
+  </div>
+</Layout>

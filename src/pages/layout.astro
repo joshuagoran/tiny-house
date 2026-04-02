@@ -1,0 +1,54 @@
+---
+import Layout from "../layouts/Layout.astro";
+const base = import.meta.env.BASE_URL;
+---
+
+<Layout title="Layout">
+  <span class="page-tag">Floor Plan</span>
+  <h1>Layout</h1>
+  <p class="lead">Side entry from full-length covered porch. Bathroom left (6'), kitchen center (10'), living right (12').</p>
+
+  <p>Alternating tread stairs start in living zone, climb interior wall toward bathroom, land in loft. Sink centered under kitchen window. Lift-top coffee table in living converts to dining height; folding gate-leg table stored under stairs for gatherings of 4–6.</p>
+
+  <h2>Main Floor Zones</h2>
+
+  <h3>Bathroom (~6')</h3>
+  <ul>
+    <li>Shower (32&times;36") + glass panel in corner (gable end + porch side)</li>
+    <li>Vanity on gable end wall</li>
+    <li>Toilet on interior wall under window</li>
+    <li>Water heater near plumbing wall</li>
+    <li>Pocket door centered on dividing wall</li>
+  </ul>
+
+  <h3>Kitchen (~10')</h3>
+  <ul>
+    <li>Alternating tread stairs along interior wall from living toward bathroom</li>
+    <li>Fridge, W/D, pantry storage under upper stairs (tallest clearance near bathroom)</li>
+    <li>Cubbies under lower stairs in living zone</li>
+    <li>Porch-side counter with sink centered under window, cooktop and dishdrawer to the right</li>
+    <li>Bar pass-through window to porch</li>
+    <li>30&times;30 skylight over kitchen</li>
+    <li>Air fryer oven on counter</li>
+  </ul>
+
+  <h3>Living (~12')</h3>
+  <ul>
+    <li>Woodstove near interior wall at kitchen/living boundary</li>
+    <li>Couch fills entire end wall</li>
+    <li>Lift-top coffee table between couch and stove</li>
+    <li>Desk along interior wall</li>
+    <li>Entry door on porch side</li>
+    <li>Windows on porch side and end wall</li>
+  </ul>
+
+  <h2>Covered Porch</h2>
+  <p>28' &times; ~8', full trailer length. Modular bolt-together construction: 3 deck sections (~9' each) on adjustable post feet. Polycarbonate lean-to roof on 4&times;4 posts, pitches away from house with eave overlap. Disassembles with basic tools for relocation. Concrete block footings.</p>
+
+  <p><strong>Features:</strong> bar counter aligned with kitchen pass-through window, propane grill, outdoor seating, soaking tub near bathroom end.</p>
+
+  <div class="page-nav">
+    <a href={base}>&larr; Overview</a>
+    <a href={`${base}loft/`} class="next">Bedroom Loft &rarr;</a>
+  </div>
+</Layout>

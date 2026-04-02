@@ -1,0 +1,34 @@
+---
+import Layout from "../layouts/Layout.astro";
+const base = import.meta.env.BASE_URL;
+---
+
+<Layout title="Open Questions">
+  <span class="page-tag">Decisions</span>
+  <h1>Open Questions</h1>
+  <p class="lead">Unresolved decisions — revisit as the build takes shape.</p>
+
+  <ul>
+    <li><strong>Trailer length:</strong> 26' vs 28' — Tasmania reference house likely ~24'.</li>
+    <li><strong>Wall thickness:</strong> 2&times;4 vs 2&times;6 — affects interior width, R-value, weight.</li>
+    <li><strong>Shed roof pitch:</strong> 4/12 vs 5/12 — confirm based on final site and snow load.</li>
+    <li><strong>Clerestory windows:</strong> How many, how wide, along high wall above porch roof line?</li>
+    <li><strong>Siding species:</strong> Depends on local sawmill availability. Dark/black stain?</li>
+    <li><strong>Wood stove:</strong> Dwarf Cookstove (oven) vs Steelhead (hot water tank + bigger cooktop).</li>
+    <li><strong>Outdoor tub:</strong> Wood-fired ofuro/Chofu vs propane heated stock tank.</li>
+    <li><strong>Storage loft over living:</strong> Build it or leave as open ceiling for height?</li>
+    <li><strong>Kitchen sink style:</strong> TBD — undermount, vessel, farmhouse?</li>
+    <li><strong>Clivus Multrum LP:</strong> Australian product — confirm US availability/shipping.</li>
+    <li><strong>Solar battery choice:</strong> EV salvage vs Renogy LFP vs starter+expand.</li>
+    <li><strong>Washer/dryer model:</strong> Bosch 500 (240V) vs LG (120V) — affects circuit planning.</li>
+    <li><strong>Bathroom tile:</strong> Patterned terracotta style (Tasmania reference)?</li>
+    <li><strong>Lighting design:</strong> TBD — all LED, pendant fixtures, under-cabinet.</li>
+    <li><strong>Minisplit brand/size:</strong> 9,000 vs 12,000 BTU, interior wall placement.</li>
+    <li><strong>Metal roof material:</strong> Galvalume vs painted steel — for potable rainwater.</li>
+  </ul>
+
+  <div class="page-nav">
+    <a href={`${base}electrical/`}>&larr; Electrical</a>
+    <span></span>
+  </div>
+</Layout>

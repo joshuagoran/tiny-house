@@ -1,0 +1,118 @@
+---
+import Layout from "../layouts/Layout.astro";
+const base = import.meta.env.BASE_URL;
+---
+
+<Layout title="Rainwater Catchment">
+  <span class="page-tag">Water</span>
+  <h1>Rainwater Catchment</h1>
+  <p class="lead">Collection from house + porch roofs, storage, and 5-stage potable filtration.</p>
+
+  <h2>Collection</h2>
+  <ul>
+    <li><strong>House roof:</strong> 238 sq ft — metal standing seam. Gutter on low/interior side.</li>
+    <li><strong>Porch roof:</strong> 224 sq ft — pitches away from house. Gutter on outer/yard edge.</li>
+    <li><strong>Combined:</strong> ~462 sq ft. Both gutters pipe to shared storage.</li>
+  </ul>
+
+  <h2>Annual Capture (at 85% efficiency)</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Location</th><th>Annual Rainfall</th><th>Capture</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Marshall, NC</td><td>~38"</td><td>~9,300 gal/yr</td></tr>
+        <tr><td>Woodstock, NY</td><td>~56"</td><td>~13,700 gal/yr</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>Estimated use:</strong> 30–50 gal/day for two people with composting toilet (no flush water) = 11,000–18,000 gal/yr. Rainwater covers 50–100% depending on location and conservation. Backup water source needed for dry spells.</p>
+
+  <h2>System Flow</h2>
+
+  <pre><code>House roof gutter ──┐
+                    ├──► First flush diverter ──► (dirty water to ground)
+Porch roof gutter ──┘           │
+                                ▼
+                         Leaf / debris screen
+                                │
+                                ▼
+                    Storage tank (500–1,000 gal)
+                    opaque, food-grade, sealed
+                                │
+                                ▼
+                        12V pressure pump
+                                │
+                                ▼
+                    ┌─── Potable filtration ───┐
+                    │                          │
+                    │  1. Spin-down (reusable)  │
+                    │  2. Sediment (5–10 μm)    │
+                    │  3. Carbon block (1–5 μm) │
+                    │  4. 0.2 μm absolute       │
+                    │  5. UV sterilizer (opt.)   │
+                    │                          │
+                    └──────────────────────────┘
+                                │
+                                ▼
+                        House plumbing (potable)</code></pre>
+
+  <h2>Potable Filtration Details</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Stage</th><th>Function</th><th>Notes</th><th>Links</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1. Spin-down</strong></td>
+          <td>Catches coarse sediment</td>
+          <td>Reusable, flush periodically. No cartridges.</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><strong>2. String/sediment</strong></td>
+          <td>5–10 μm pre-filter</td>
+          <td>Cheap cartridges. Protects downstream stages from clogging.</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><strong>3. Carbon block</strong></td>
+          <td>1–5 μm. Chemicals, taste, odor</td>
+          <td>Goes before 0.2μm so it's not fouling the finest filter.</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><strong>4. 0.2 μm absolute</strong></td>
+          <td>Physically blocks bacteria &amp; protozoa</td>
+          <td>Standard 10" inline housing. Key stage for potable.</td>
+          <td>
+            <a href="https://goblutech.com/products/0-2-micron-premium-water-filter-10-x-2-5-inch" target="_blank" rel="noopener">Blu Tech</a> ·
+            <a href="https://www.amazon.com/Micron-Filter-10-Inch-Superior-Cartridge/dp/B0B61WX8M9" target="_blank" rel="noopener">Amazon</a> ·
+            <a href="https://www.clearsourcerv.com/products/replacement-0-2-micron-filter" target="_blank" rel="noopener">ClearSource</a> ·
+            <a href="https://www.watts.com/products/water-quality-rainwater-harvesting-solutions/water-quality-parts-accessories/filter-cartridges/ceramic-filters" target="_blank" rel="noopener">Watts ceramic</a>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>5. UV sterilizer</strong></td>
+          <td>Final kill step for viruses</td>
+          <td>Optional. Belt-and-suspenders for primary drinking water. Viruses are smaller than 0.2μm.</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <p><strong>Legal:</strong> NC is rainwater-friendly — no restrictions. Check Ulster County (Woodstock, NY) regulations for potable rainwater use.</p>
+  </div>
+
+  <div class="page-nav">
+    <a href={`${base}envelope/`}>&larr; Envelope</a>
+    <a href={`${base}electrical/`} class="next">Electrical &rarr;</a>
+  </div>
+</Layout>
