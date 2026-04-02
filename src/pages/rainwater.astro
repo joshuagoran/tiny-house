@@ -33,32 +33,9 @@ const base = import.meta.env.BASE_URL;
 
   <h2>System Flow</h2>
 
-  <pre><code>House roof gutter ──┐
-                    ├──► First flush diverter ──► (dirty water to ground)
-Porch roof gutter ──┘           │
-                                ▼
-                         Leaf / debris screen
-                                │
-                                ▼
-                    Storage tank (500–1,000 gal)
-                    opaque, food-grade, sealed
-                                │
-                                ▼
-                        12V pressure pump
-                                │
-                                ▼
-                    ┌─── Potable filtration ───┐
-                    │                          │
-                    │  1. Spin-down (reusable)  │
-                    │  2. Sediment (5–10 μm)    │
-                    │  3. Carbon block (1–5 μm) │
-                    │  4. 0.2 μm absolute       │
-                    │  5. UV sterilizer (opt.)   │
-                    │                          │
-                    └──────────────────────────┘
-                                │
-                                ▼
-                        House plumbing (potable)</code></pre>
+  <div class="diagram">
+    <img src={`${base}diagrams/rainwater-system.svg`} alt="Rainwater catchment system diagram showing flow from roof gutters through first flush diverter, leaf screen, storage tank, pressure pump, and 5-stage potable filtration to house plumbing" width="680" />
+  </div>
 
   <h2>Potable Filtration Details</h2>
 
