@@ -1,0 +1,537 @@
+---
+import Layout from "../layouts/Layout.astro";
+const base = import.meta.env.BASE_URL;
+---
+
+<Layout title="3D Viewer">
+  <span class="page-tag">Interactive</span>
+  <h1>3D Model</h1>
+  <p class="lead">Orbit, zoom, and explore the tiny house. Click zones to highlight them.</p>
+
+  <div id="viewer-container">
+    <canvas id="viewer"></canvas>
+    <div id="viewer-controls">
+      <label><input type="checkbox" id="toggle-roof" checked /> Roof</label>
+      <label><input type="checkbox" id="toggle-loft" checked /> Loft</label>
+      <label><input type="checkbox" id="toggle-furniture" checked /> Furniture</label>
+      <label><input type="checkbox" id="toggle-porch" checked /> Porch</label>
+      <label><input type="checkbox" id="toggle-walls" checked /> Walls</label>
+    </div>
+    <div id="viewer-info"></div>
+  </div>
+
+  <div class="page-nav">
+    <a href={`${base}open-questions/`}>&larr; Open Questions</a>
+    <span></span>
+  </div>
+</Layout>
+
+<style>
+  #viewer-container {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    aspect-ratio: 16 / 10;
+    background: #1a1a2e;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 1rem 0 2rem;
+  }
+
+  #viewer {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  #viewer-controls {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 10px 14px;
+    border-radius: 8px;
+    backdrop-filter: blur(8px);
+  }
+
+  #viewer-controls label {
+    color: #ccc;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+  }
+
+  #viewer-controls input {
+    accent-color: #5b7a5e;
+  }
+
+  #viewer-info {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    color: #999;
+    font-size: 0.75rem;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 6px 10px;
+    border-radius: 6px;
+  }
+</style>
+
+<script>
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+  // ── Parameters (inches, converted to Three.js units: 1 unit = 1 inch) ──
+
+  const TRAILER_LENGTH = 28 * 12;
+  const TRAILER_WIDTH = 8.5 * 12;
+  const WALL_THICKNESS = 3.5;
+  const MAIN_CEILING_HEIGHT = 6.5 * 12; // 6'6" average
+  const LOFT_FLOOR_THICKNESS = 4.5;
+  const ROOF_ASSEMBLY = 7;
+
+  const BATH_LENGTH = 6 * 12;
+  const KITCHEN_LENGTH = 10 * 12;
+  const LIVING_LENGTH = 12 * 12;
+  const LOFT_LENGTH = 10 * 12;
+  const PORCH_LENGTH = TRAILER_LENGTH;
+  const PORCH_WIDTH = 8 * 12;
+
+  // Shed roof: high side on porch, low on interior. 4/12 pitch
+  const ROOF_PITCH = 4 / 12;
+  const ROOF_HIGH = MAIN_CEILING_HEIGHT + LOFT_FLOOR_THICKNESS + 52; // ~4'4" loft clearance high side
+  const ROOF_LOW = ROOF_HIGH - TRAILER_WIDTH * ROOF_PITCH;
+
+  const TRAILER_DECK_HEIGHT = 22;
+  const PORCH_DECK_HEIGHT = 16;
+  const COUNTER_DEPTH = 24;
+  const COUNTER_HEIGHT = 36;
+  const STAIR_DEPTH = 28;
+
+  // Colors
+  const C = {
+    walls: 0xf5f0e8,
+    wallsInterior: 0xe8e4dc,
+    floor: 0xd4c9b0,
+    loftFloor: 0xc9bea5,
+    roof: 0x4a4a4a,
+    roofUnder: 0xd4c0a0,
+    bath: 0xdcd8ee,
+    kitchen: 0xd4e4d6,
+    living: 0xd4dfe8,
+    furniture: 0xc4a86c,
+    fixtures: 0x9ca0b8,
+    appliances: 0x8aaa8e,
+    stove: 0x3a3a3a,
+    porch: 0xc9bea0,
+    porchRoof: 0xb8c8d0,
+    stairs: 0xc4a878,
+    window: 0x8ec8e8,
+    trailer: 0x555555,
+    ground: 0x7a9a6a,
+  };
+
+  // ── Scene setup ──
+
+  const canvas = document.getElementById('viewer') as HTMLCanvasElement;
+  const container = document.getElementById('viewer-container')!;
+  const info = document.getElementById('viewer-info')!;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x1a1a2e);
+  scene.fog = new THREE.Fog(0x1a1a2e, 800, 1600);
+
+  const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 1, 3000);
+  camera.position.set(300, 250, 400);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.target.set(TRAILER_LENGTH / 2, MAIN_CEILING_HEIGHT / 2 + TRAILER_DECK_HEIGHT, 0);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.minDistance = 100;
+  controls.maxDistance = 1200;
+  controls.maxPolarAngle = Math.PI * 0.85;
+
+  // ── Lighting ──
+
+  const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+  scene.add(ambient);
+
+  const sun = new THREE.DirectionalLight(0xfff5e0, 1.0);
+  sun.position.set(200, 400, 300);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.camera.left = -400;
+  sun.shadow.camera.right = 400;
+  sun.shadow.camera.top = 400;
+  sun.shadow.camera.bottom = -400;
+  scene.add(sun);
+
+  const fill = new THREE.DirectionalLight(0xc0d0ff, 0.3);
+  fill.position.set(-200, 200, -100);
+  scene.add(fill);
+
+  // ── Groups for toggle visibility ──
+
+  const groups: Record<string, THREE.Group> = {
+    roof: new THREE.Group(),
+    loft: new THREE.Group(),
+    furniture: new THREE.Group(),
+    porch: new THREE.Group(),
+    walls: new THREE.Group(),
+  };
+  Object.values(groups).forEach(g => scene.add(g));
+
+  // ── Helper functions ──
+
+  function box(w: number, h: number, d: number, color: number, x: number, y: number, z: number, group?: THREE.Group) {
+    const geo = new THREE.BoxGeometry(w, h, d);
+    const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.8, metalness: 0.05 });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x + w / 2, y + h / 2, z + d / 2);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    (group || scene).add(mesh);
+    return mesh;
+  }
+
+  function wallBox(w: number, h: number, d: number, color: number, x: number, y: number, z: number, group?: THREE.Group) {
+    const geo = new THREE.BoxGeometry(w, h, d);
+    const mat = new THREE.MeshStandardMaterial({
+      color,
+      roughness: 0.7,
+      metalness: 0.02,
+      transparent: true,
+      opacity: 0.92,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x + w / 2, y + h / 2, z + d / 2);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    (group || scene).add(mesh);
+    return mesh;
+  }
+
+  function windowPane(w: number, h: number, x: number, y: number, z: number, rotateY = 0) {
+    const geo = new THREE.PlaneGeometry(w, h);
+    const mat = new THREE.MeshStandardMaterial({
+      color: C.window,
+      transparent: true,
+      opacity: 0.4,
+      side: THREE.DoubleSide,
+      roughness: 0.1,
+      metalness: 0.3,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, y, z);
+    if (rotateY) mesh.rotation.y = rotateY;
+    groups.walls.add(mesh);
+    return mesh;
+  }
+
+  // ── Coordinate system ──
+  // x = along trailer length (0 = bathroom gable, TRAILER_LENGTH = living gable)
+  // y = vertical (0 = ground level, TRAILER_DECK_HEIGHT = floor)
+  // z = across trailer width (negative = interior wall, positive = porch side)
+  // Center z = 0 at midpoint of trailer width
+
+  const halfW = TRAILER_WIDTH / 2;
+  const floorY = TRAILER_DECK_HEIGHT;
+  const WT = WALL_THICKNESS;
+
+  // ── Ground plane ──
+
+  const groundGeo = new THREE.PlaneGeometry(1200, 1200);
+  const groundMat = new THREE.MeshStandardMaterial({ color: C.ground, roughness: 1 });
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = 0;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  // ── Trailer frame ──
+
+  box(TRAILER_LENGTH + 12, 6, TRAILER_WIDTH + 4, C.trailer, -6, TRAILER_DECK_HEIGHT - 8, -halfW - 2);
+  // Wheels (simple cylinders)
+  for (const xPos of [60, TRAILER_LENGTH - 60]) {
+    for (const zSide of [-1, 1]) {
+      const wheelGeo = new THREE.CylinderGeometry(8, 8, 4, 16);
+      const wheelMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.5 });
+      const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+      wheel.rotation.x = Math.PI / 2;
+      wheel.position.set(xPos, 8, zSide * (halfW + 4));
+      scene.add(wheel);
+    }
+  }
+
+  // ── Main floor ──
+
+  box(TRAILER_LENGTH, 4, TRAILER_WIDTH, C.floor, 0, floorY - 4, -halfW);
+
+  // ── Exterior walls ──
+  const wallH = MAIN_CEILING_HEIGHT;
+
+  // Interior wall (z = -halfW, runs full length) — top in plan view
+  wallBox(TRAILER_LENGTH, wallH, WT, C.walls, 0, floorY, -halfW, groups.walls);
+  // Porch side wall (z = +halfW - WT) — bottom in plan view
+  wallBox(TRAILER_LENGTH, wallH, WT, C.walls, 0, floorY, halfW - WT, groups.walls);
+  // Bathroom gable end (x = 0)
+  wallBox(WT, wallH, TRAILER_WIDTH, C.walls, 0, floorY, -halfW, groups.walls);
+  // Living gable end (x = TRAILER_LENGTH - WT)
+  wallBox(WT, wallH, TRAILER_WIDTH, C.walls, TRAILER_LENGTH - WT, floorY, -halfW, groups.walls);
+
+  // ── Interior walls ──
+
+  // Bath/kitchen partition
+  wallBox(WT, wallH, TRAILER_WIDTH - 2 * WT, C.wallsInterior,
+    BATH_LENGTH - WT / 2, floorY, -halfW + WT, groups.walls);
+
+  // ── Zone floor colors ──
+
+  box(BATH_LENGTH - WT, 0.5, TRAILER_WIDTH - 2 * WT, C.bath,
+    WT, floorY, -halfW + WT);
+  box(KITCHEN_LENGTH, 0.5, TRAILER_WIDTH - 2 * WT, C.kitchen,
+    BATH_LENGTH, floorY, -halfW + WT);
+  box(LIVING_LENGTH - WT, 0.5, TRAILER_WIDTH - 2 * WT, C.living,
+    BATH_LENGTH + KITCHEN_LENGTH, floorY, -halfW + WT);
+
+  // ── Windows ──
+
+  // Bathroom gable end window
+  windowPane(48, 36, WT / 2, floorY + 36, 0, Math.PI / 2);
+
+  // Living gable end window
+  windowPane(60, 40, TRAILER_LENGTH - WT / 2, floorY + 30, 0, Math.PI / 2);
+
+  // Toilet window (interior wall)
+  windowPane(24, 24, BATH_LENGTH / 2 + 12, floorY + 42, -halfW + WT / 2);
+
+  // Kitchen window / bar pass-through (porch side)
+  windowPane(80, 30, BATH_LENGTH + KITCHEN_LENGTH / 2, floorY + 36, halfW - WT / 2);
+
+  // Living window (porch side)
+  windowPane(60, 36, BATH_LENGTH + KITCHEN_LENGTH + 80, floorY + 30, halfW - WT / 2);
+
+  // ── Bathroom fixtures ──
+
+  // Shower
+  box(36, 72, 32, C.fixtures, WT, floorY, halfW - WT - 32, groups.furniture);
+  // Vanity
+  box(20, 34, 24, C.fixtures, WT, floorY, -halfW + WT + 6, groups.furniture);
+  // Toilet
+  box(18, 18, 28, C.fixtures, WT + 20 + 8, floorY, -halfW + WT, groups.furniture);
+  // Water heater
+  box(18, 24, 18, C.appliances, BATH_LENGTH - WT - 22, floorY, -halfW + WT, groups.furniture);
+
+  // ── Kitchen fixtures ──
+
+  // Counter along porch side
+  const counterX = BATH_LENGTH + 8;
+  const counterLen = KITCHEN_LENGTH - 16;
+  box(counterLen, COUNTER_HEIGHT, COUNTER_DEPTH, C.kitchen,
+    counterX, floorY, halfW - WT - COUNTER_DEPTH, groups.furniture);
+
+  // Cooktop (on counter)
+  box(12, 2, 20, C.stove, counterX + counterLen / 2 + 20, floorY + COUNTER_HEIGHT, halfW - WT - 22, groups.furniture);
+
+  // ── Stairs ──
+
+  const stairX = BATH_LENGTH + 4;
+  const stairLen = KITCHEN_LENGTH + 48;
+  const stairSteps = 8;
+  const stepH = (MAIN_CEILING_HEIGHT + LOFT_FLOOR_THICKNESS) / stairSteps;
+  const stepW = stairLen / stairSteps;
+  for (let i = 0; i < stairSteps; i++) {
+    box(stepW - 1, stepH * (i + 1), STAIR_DEPTH, C.stairs,
+      stairX + (stairSteps - 1 - i) * stepW, floorY,
+      -halfW + WT, groups.furniture);
+  }
+
+  // ── Woodstove ──
+
+  box(16, 24, 16, C.stove,
+    BATH_LENGTH + KITCHEN_LENGTH + 6, floorY,
+    -halfW + WT + STAIR_DEPTH + 8, groups.furniture);
+
+  // Flue pipe
+  const fluePipeGeo = new THREE.CylinderGeometry(2, 2, wallH + 40, 8);
+  const fluePipeMat = new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.4 });
+  const fluePipe = new THREE.Mesh(fluePipeGeo, fluePipeMat);
+  fluePipe.position.set(
+    BATH_LENGTH + KITCHEN_LENGTH + 6 + 8,
+    floorY + wallH / 2,
+    -halfW + WT + STAIR_DEPTH + 8 + 8,
+  );
+  groups.furniture.add(fluePipe);
+
+  // ── Living furniture ──
+
+  // U-shaped couch — end wall section
+  const couchDepth = 28;
+  const couchArm = 24;
+  const couchX = TRAILER_LENGTH - WT - couchDepth;
+  box(couchDepth, 18, TRAILER_WIDTH - 2 * WT, C.furniture, couchX, floorY, -halfW + WT, groups.furniture);
+  // Interior wall arm
+  box(couchArm, 18, couchDepth, C.furniture, couchX - couchArm, floorY, -halfW + WT, groups.furniture);
+  // Porch side arm
+  box(couchArm, 18, couchDepth, C.furniture, couchX - couchArm, floorY, halfW - WT - couchDepth, groups.furniture);
+
+  // Coffee table
+  box(48, 18, 24, C.furniture,
+    couchX - couchArm - 56, floorY, -12, groups.furniture);
+
+  // Desk
+  box(48, 30, 24, C.furniture,
+    BATH_LENGTH + KITCHEN_LENGTH + 30, floorY, -halfW + WT + STAIR_DEPTH + 8, groups.furniture);
+
+  // ── Loft ──
+
+  const loftY = floorY + MAIN_CEILING_HEIGHT;
+
+  // Loft floor (over bathroom + 2' into kitchen)
+  box(LOFT_LENGTH, LOFT_FLOOR_THICKNESS, TRAILER_WIDTH - 2 * WT, C.loftFloor,
+    WT, loftY, -halfW + WT, groups.loft);
+
+  // King bed
+  box(80, 10, 76, 0xd0c8e0,
+    WT + 2, loftY + LOFT_FLOOR_THICKNESS, -38, groups.loft);
+
+  // Ledges
+  box(80, 6, 11, C.furniture, WT + 2, loftY + LOFT_FLOOR_THICKNESS, -halfW + WT, groups.loft);
+  box(80, 6, 11, C.furniture, WT + 2, loftY + LOFT_FLOOR_THICKNESS, 38, groups.loft);
+
+  // Partial wall at foot of bed
+  wallBox(WT, 36, TRAILER_WIDTH - 2 * WT, C.wallsInterior,
+    WT + 84, loftY + LOFT_FLOOR_THICKNESS, -halfW + WT, groups.loft);
+
+  // ── Roof ──
+
+  // Shed roof — high side on porch (positive z), low on interior (negative z)
+  const roofGeo = new THREE.BufferGeometry();
+  const roofOverhang = 12;
+  const roofVerts = new Float32Array([
+    // Triangle 1
+    -roofOverhang, floorY + ROOF_LOW - ROOF_ASSEMBLY, -halfW - roofOverhang,
+    TRAILER_LENGTH + roofOverhang, floorY + ROOF_LOW - ROOF_ASSEMBLY, -halfW - roofOverhang,
+    TRAILER_LENGTH + roofOverhang, floorY + ROOF_HIGH, halfW + roofOverhang,
+    // Triangle 2
+    -roofOverhang, floorY + ROOF_LOW - ROOF_ASSEMBLY, -halfW - roofOverhang,
+    TRAILER_LENGTH + roofOverhang, floorY + ROOF_HIGH, halfW + roofOverhang,
+    -roofOverhang, floorY + ROOF_HIGH, halfW + roofOverhang,
+  ]);
+  roofGeo.setAttribute('position', new THREE.BufferAttribute(roofVerts, 3));
+  roofGeo.computeVertexNormals();
+
+  const roofMat = new THREE.MeshStandardMaterial({
+    color: C.roof,
+    roughness: 0.3,
+    metalness: 0.6,
+    side: THREE.DoubleSide,
+  });
+  const roofMesh = new THREE.Mesh(roofGeo, roofMat);
+  roofMesh.castShadow = true;
+  groups.roof.add(roofMesh);
+
+  // ── Covered porch ──
+
+  const porchZ = halfW + 8; // offset from house wall
+
+  // Porch deck
+  box(PORCH_LENGTH, 4, PORCH_WIDTH, C.porch,
+    0, PORCH_DECK_HEIGHT - 4, porchZ, groups.porch);
+
+  // 4×4 posts
+  const postPositions = [6, PORCH_LENGTH / 3, PORCH_LENGTH * 2 / 3, PORCH_LENGTH - 6];
+  for (const px of postPositions) {
+    box(3.5, 84, 3.5, C.furniture,
+      px - 1.75, PORCH_DECK_HEIGHT, porchZ + PORCH_WIDTH - 3.5, groups.porch);
+  }
+
+  // Polycarbonate lean-to roof (translucent)
+  const porchRoofGeo = new THREE.PlaneGeometry(PORCH_LENGTH + 12, PORCH_WIDTH + 12);
+  const porchRoofMat = new THREE.MeshStandardMaterial({
+    color: C.porchRoof,
+    transparent: true,
+    opacity: 0.3,
+    side: THREE.DoubleSide,
+    roughness: 0.2,
+  });
+  const porchRoof = new THREE.Mesh(porchRoofGeo, porchRoofMat);
+  // Tilt slightly away from house
+  porchRoof.rotation.x = -Math.PI / 2 + 0.15;
+  porchRoof.position.set(PORCH_LENGTH / 2, PORCH_DECK_HEIGHT + 84, porchZ + PORCH_WIDTH / 2);
+  groups.porch.add(porchRoof);
+
+  // ── Entry door (opening in porch-side wall) ──
+
+  // Entry door visual — a gap is implied. Add a door panel.
+  const doorGeo = new THREE.PlaneGeometry(32, 78);
+  const doorMat = new THREE.MeshStandardMaterial({ color: 0x6a5a40, roughness: 0.6, side: THREE.DoubleSide });
+  const door = new THREE.Mesh(doorGeo, doorMat);
+  door.position.set(BATH_LENGTH + KITCHEN_LENGTH + 24, floorY + 39, halfW);
+  door.rotation.y = Math.PI * 0.15;
+  groups.walls.add(door);
+
+  // ── Skylights ──
+
+  // Kitchen skylight (in roof area)
+  const skyGeo = new THREE.PlaneGeometry(30, 30);
+  const skyMat = new THREE.MeshStandardMaterial({
+    color: C.window,
+    transparent: true,
+    opacity: 0.5,
+    side: THREE.DoubleSide,
+  });
+  const skyMesh = new THREE.Mesh(skyGeo, skyMat);
+  const skyRoofZ = 0;
+  const skyRoofY = floorY + ROOF_LOW + (ROOF_HIGH - ROOF_LOW + ROOF_ASSEMBLY) * ((skyRoofZ + halfW) / TRAILER_WIDTH);
+  skyMesh.position.set(BATH_LENGTH + KITCHEN_LENGTH / 2, skyRoofY - 2, skyRoofZ);
+  skyMesh.rotation.x = -Math.PI / 2 + Math.atan(ROOF_PITCH);
+  groups.roof.add(skyMesh);
+
+  // ── Toggle controls ──
+
+  const toggles = ['roof', 'loft', 'furniture', 'porch', 'walls'] as const;
+  for (const name of toggles) {
+    const el = document.getElementById(`toggle-${name}`) as HTMLInputElement;
+    el?.addEventListener('change', () => {
+      groups[name].visible = el.checked;
+    });
+  }
+
+  // ── Info display ──
+
+  info.textContent = 'Drag to orbit · Scroll to zoom · Right-drag to pan';
+
+  // ── Resize handling ──
+
+  function onResize() {
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  }
+  window.addEventListener('resize', onResize);
+
+  // ── Animation loop ──
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+</script>
