@@ -78,7 +78,8 @@ scene.background = new THREE.Color(0xd4dce8);
 scene.fog = new THREE.Fog(0xd4dce8, 500, 1000);
 
 const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 1, 3000);
-camera.position.set(cfg.trailerLength * 0.75, 120, cfg.trailerWidth * 1.8);
+// View from bathroom end looking toward living end, elevated, slightly from porch side
+camera.position.set(-cfg.trailerLength * 0.15, 160, cfg.trailerWidth * 1.5);
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(container.clientWidth, container.clientHeight);

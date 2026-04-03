@@ -292,73 +292,88 @@ export function buildHouse(cfg: HouseConfig, groups: Groups, scene: THREE.Object
     // Stove: at inside corner of L, against interior wall, right of landing.
 
     const stairTreadWidth = 28;  // width of treads perpendicular to walking direction
-    const landingSize = 32;      // square landing
+    const landingSize = 30;      // square landing
     const stepThick = 3;         // tread thickness
 
     // ── Landing position (the anchor point) ──
-    // Against interior wall, near kitchen/living boundary
-    const landingX = kitchenEnd;                      // x = 180 (kitchen/living boundary)
-    const landingZ = -halfW + WT;                     // z = -56.5 (flush with interior wall)
-    // Landing spans: x = 180 to 212, z = -56.5 to -24.5
+    const landingX = kitchenEnd;
+    const landingZ = -halfW + WT;
 
-    // ── Run 1: z-direction, 3 steps, in living zone ──
-    // Walking direction: toward interior wall (z decreasing)
-    // Treads span in x-direction (width = stairTreadWidth = 28")
-    // Positioned so treads align with the landing in x
+    // ── Run 1: z-direction, 3 steps, 9" tread depth ──
     const run1Steps = 3;
-    const run1TreadDepth = 11;  // depth in z per step
+    const run1TreadDepth = 9;
     const run1Rise = totalRise * 0.35;
     const run1StepH = run1Rise / run1Steps;
 
-    // Run 1 treads start BELOW the landing (more positive z = further from wall)
-    // Step 1 (lowest) is furthest from wall, step 3 (highest) is closest to landing
-    const run1X = landingX + 2;  // aligned with landing, slight offset
-    const run1StartZ = landingZ + landingSize;  // z = -24.5 (porch-side edge of landing)
+    const run1X = landingX + 1;
+    const run1StartZ = landingZ + landingSize;
 
     for (let i = 0; i < run1Steps; i++) {
       const stepY = floorY + run1StepH * (i + 1);
-      // Step i=0 is highest (closest to landing), i=2 is lowest (furthest from wall)
       const stepZ = run1StartZ + (run1Steps - 1 - i) * run1TreadDepth;
       box(stairTreadWidth, stepThick, run1TreadDepth - 1, C.stairs,
         run1X, stepY - stepThick, stepZ, groups.furniture);
     }
 
     // ── Landing platform ──
-    const landingH = run1Rise + run1StepH;  // height at landing level
+    const landingH = run1Rise + run1StepH;
     box(landingSize, stepThick, landingSize, C.stairs,
       landingX, floorY + landingH - stepThick, landingZ, groups.furniture);
-    // Support column under landing
     box(4, landingH, 4, C.stairs,
       landingX + landingSize - 6, floorY, landingZ + 2, groups.furniture);
     box(4, landingH, 4, C.stairs,
       landingX + 2, floorY, landingZ + landingSize - 6, groups.furniture);
 
-    // ── Run 2: x-direction, 5 steps, along interior wall toward loft ──
-    // Walking direction: toward bathroom (x decreasing)
-    // Treads span in z-direction (width = stairTreadWidth = 28")
-    // Against interior wall
+    // ── Run 2: x-direction, 5 steps, 10" tread depth, along interior wall ──
     const run2Steps = 5;
-    const run2StartX = landingX;  // starts at left edge of landing
-    const run2EndX = bathLength + 12;  // ends near loft opening
-    const run2Len = run2StartX - run2EndX;  // ~96"
-    const run2TreadDepth = run2Len / run2Steps;
+    const run2TreadDepth = 10;
     const run2Rise = totalRise - landingH;
     const run2StepH = run2Rise / run2Steps;
 
     for (let i = 0; i < run2Steps; i++) {
       const stepY = floorY + landingH + run2StepH * (i + 1);
-      // Step i=0 is lowest (closest to landing), i=4 is highest (closest to loft)
-      const stepX = run2StartX - (i + 1) * run2TreadDepth;
+      const stepX = landingX - (i + 1) * run2TreadDepth;
       box(run2TreadDepth - 1, stepThick, stairTreadWidth, C.stairs,
         stepX, stepY - stepThick, landingZ, groups.furniture);
     }
 
+    // Run 2 ends at x = landingX - run2Steps * run2TreadDepth
+    const run2EndX = landingX - run2Steps * run2TreadDepth;  // where last step starts
+
+    // ── Under-stair appliances (along interior wall, under run 2) ──
+    // Arranged from tallest clearance (near loft) to shortest (near landing):
+    // Fridge → W/D → Pantry
+    // Height under stairs at each position:
+    //   at run2EndX: full landing + run2 rise = totalRise ≈ 82"
+    //   at landingX: landingH ≈ 38"
+
+    const applianceZ = -halfW + WT;  // against interior wall, under the stair treads
+    const applianceDepth = 24;       // all appliances 24" deep
+
+    // Fridge — tallest section (closest to loft, most headroom)
+    // IKEA SUPERKALL: 24W x 24D x 63H
+    box(24, 63, applianceDepth, C.appliances,
+      run2EndX, floorY, applianceZ, groups.furniture);
+
+    // W/D — next section (front-loader, only 34" tall, needs floor space in front)
+    // Bosch compact: 24W x 24D x 34H
+    box(24, 34, applianceDepth, C.appliances,
+      run2EndX + 26, floorY, applianceZ, groups.furniture);
+
+    // Pantry storage — remaining space toward landing, shorter clearance
+    // Pull-out pantry cabinet
+    const pantryX = run2EndX + 52;
+    const pantryLen = landingX - pantryX - 2;
+    if (pantryLen > 10) {
+      box(pantryLen, 48, applianceDepth, C.kitchen,
+        pantryX, floorY, applianceZ, groups.furniture);
+    }
+
     // ── Woodstove — inside corner of L, against interior wall, right of landing ──
-    const stoveX = landingX + landingSize + 6;  // right of the landing
-    const stoveZ = -halfW + WT;                  // flush against interior wall
+    const stoveX = landingX + landingSize + 6;
+    const stoveZ = -halfW + WT;
     box(WOODSTOVE, 24, WOODSTOVE, C.stove, stoveX, floorY, stoveZ, groups.furniture);
 
-    // Flue pipe straight up
     const fluePipeGeo = new THREE.CylinderGeometry(2, 2, wallH + 40, 8);
     const fluePipe = new THREE.Mesh(fluePipeGeo, new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.4 }));
     fluePipe.position.set(stoveX + 8, floorY + wallH / 2, stoveZ + 8);
@@ -414,27 +429,42 @@ export function buildHouse(cfg: HouseConfig, groups: Groups, scene: THREE.Object
 
   box(loftLength, loftFloorH, W - 2 * WT, C.loftFloor, WT, loftY, -halfW + WT, groups.loft);
 
-  // King bed
-  box(80, 10, 76, 0xd0c8e0, WT + 2, loftY + loftFloorH, -38, groups.loft);
-  // Ledges
-  box(80, 6, 11, C.furniture, WT + 2, loftY + loftFloorH, -halfW + WT, groups.loft);
-  box(80, 6, 11, C.furniture, WT + 2, loftY + loftFloorH, halfW - WT - 11, groups.loft);
-  // Partial wall
+  // King bed — centered across width
+  const bedW = 76;
+  const bedL = 80;
+  const bedX = WT + 2;
+  const bedZ = -bedW / 2;  // centered at z=0
+  box(bedL, 10, bedW, 0xd0c8e0, bedX, loftY + loftFloorH, bedZ, groups.loft);
+
+  // Ledges — half bed length (40") at HEAD end, full width (wall to wall)
+  const ledgeLen = bedL / 2;  // 40" — head end only
+  const interiorW = W - 2 * WT;
+  // Interior wall side ledge
+  box(ledgeLen, 6, (interiorW - bedW) / 2, C.furniture,
+    bedX, loftY + loftFloorH, -halfW + WT, groups.loft);
+  // Porch side ledge
+  box(ledgeLen, 6, (interiorW - bedW) / 2, C.furniture,
+    bedX, loftY + loftFloorH, bedZ + bedW, groups.loft);
+
+  // Partial wall at foot of bed
   wallBox(WT, 36, W - 2 * WT, C.wallsInterior, WT + 84, loftY + loftFloorH, -halfW + WT, groups.loft);
 
-  // ── Second floor walls (full length, not just loft) ──
+  // ── Second floor walls ──
   const loftWallH = MAX_ROOF_TOP - wallH - loftFloorH;
   const loftWallY = loftY + loftFloorH;
 
-  // Full-length walls above first floor ceiling
+  // Full-length exterior walls above first floor ceiling
   wallBox(L, loftWallH, WT, C.walls, 0, loftWallY, -halfW, groups['loft-walls']);           // interior
   wallBox(L, loftWallH, WT, C.walls, 0, loftWallY, halfW - WT, groups['loft-walls']);       // porch
   wallBox(WT, loftWallH, W, C.walls, 0, loftWallY, -halfW, groups['loft-walls']);            // bath gable
   wallBox(WT, loftWallH, W, C.walls, L - WT, loftWallY, -halfW, groups['loft-walls']);       // living gable
 
-  // Loft end wall at loft/open transition (with stair opening)
-  wallBox(WT, loftWallH, W - WT - 30, C.wallsInterior,
-    loftLength, loftWallY, -halfW + WT + 30, groups['loft-walls']);
+  // Loft end wall at loft/open transition — on INTERIOR WALLS group
+  // Opening for stairs: stairs arrive against interior wall, opening is ~28" wide on that side
+  // Solid wall section on porch side (from porch wall to stair opening)
+  const stairOpeningWidth = STAIR_DEPTH + 4; // 32" opening for stairs
+  wallBox(WT, loftWallH, W - 2 * WT - stairOpeningWidth, C.wallsInterior,
+    loftLength, loftWallY, -halfW + WT + stairOpeningWidth, groups['int-walls']);
 
   // Gable window in loft
   windowPane(48, loftWallH * 0.7, WT / 2, loftWallY + loftWallH * 0.4, 0, groups['loft-walls'], Math.PI / 2);
