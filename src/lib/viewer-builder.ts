@@ -167,9 +167,11 @@ export function buildTrailer(cfg: HouseConfig, scene: THREE.Object3D) {
   scene.add(coupler);
 
   // Axle positions — placed within the fender well area
-  // C + E + D = A: C=front-to-fenders, E=fender/axle span, D=rear overhang
-  const fenderStart = cfg.fenderStart;
+  // Spec measures from tongue end: C (front-to-fenders) + E (axle span) + D (rear) = A
+  // Tongue is at x=L, so fender area is at x = L-C-E to x = L-C
+  // Which equals x = D to x = D+E (D = rearOverhang from bathroom end)
   const fenderLen = cfg.fenderLength;
+  const fenderStart = cfg.rearOverhang; // D = distance from bathroom end to start of fender area
   const axlePositions: number[] = [];
   if (axleCount === 2) {
     // 2 axles evenly within fender span
@@ -272,68 +274,63 @@ export function buildHouse(cfg: HouseConfig, groups: Groups, scene: THREE.Object
   const totalRise = wallH + loftFloorH;
 
   if (cfg.stairStyle === 'L-shape') {
-    // L-shaped stairs:
-    // Run 1: along interior wall (-z side) in living zone, going left toward kitchen
-    // Landing: at the kitchen/living boundary corner, against interior wall
-    // Run 2: continues along interior wall into kitchen zone toward bathroom/loft
+    // L-shaped stairs (true perpendicular L):
+    // Run 1: along interior wall in living zone, heading left toward kitchen (x-direction)
+    // Landing: square platform at the corner, against interior wall
+    // Run 2: PERPENDICULAR — from landing, going away from interior wall across the width (z-direction)
+    //         This run rises to loft level, with the loft opening above it
 
     const stairWidth = STAIR_DEPTH; // 28" wide treads
     const landingSize = 32;
-    const stepThickness = 2; // individual tread thickness
+    const stepThickness = 3;
 
-    // Run 1 — in living zone along interior wall, heading left
-    const run1Len = livingLength - landingSize - 8;
+    // Run 1 — along interior wall in living zone, treads face x-direction
+    const run1Len = livingLength - landingSize - 12;
     const run1Steps = 4;
     const run1StepW = run1Len / run1Steps;
     const run1Rise = totalRise * 0.45;
     const run1StepH = run1Rise / run1Steps;
 
-    // Individual treads (not stacked boxes) — each is a thin plank at its height
     for (let i = 0; i < run1Steps; i++) {
       const stepY = floorY + run1StepH * (i + 1);
-      const stepX = L - WT - 8 - (i + 1) * run1StepW;
+      const stepX = L - WT - 12 - (i + 1) * run1StepW;
       // Tread
       box(run1StepW - 2, stepThickness, stairWidth, C.stairs,
         stepX, stepY - stepThickness, -halfW + WT, groups.furniture);
-      // Stringer (side support, visible)
-      box(run1StepW - 2, stepY - floorY, 2, C.stairs,
-        stepX, floorY, -halfW + WT, groups.furniture);
     }
 
-    // Corner landing — square platform at the turn
+    // Corner landing — square platform at the turn, against interior wall
     const landingX = kitchenEnd;
     const landingH = run1Rise + run1StepH;
     box(landingSize, stepThickness, landingSize, C.stairs,
       landingX, floorY + landingH - stepThickness, -halfW + WT, groups.furniture);
-    // Landing support
-    box(landingSize, landingH, 2, C.stairs,
+    // Landing support wall
+    box(2, landingH, landingSize, C.stairs,
       landingX, floorY, -halfW + WT, groups.furniture);
 
-    // Run 2 — from landing into kitchen along interior wall, heading left toward loft
-    const run2Len = kitchenLength - 12;
+    // Run 2 — PERPENDICULAR: from landing, going across the width (z-direction, away from interior wall)
+    // Treads face z-direction, stair run extends outward from the interior wall
+    const run2Len = W - 2 * WT - landingSize - 8; // remaining width after landing
     const run2Steps = 4;
-    const run2StepW = run2Len / run2Steps;
+    const run2StepD = run2Len / run2Steps;
     const run2Rise = totalRise - landingH;
     const run2StepH = run2Rise / run2Steps;
 
     for (let i = 0; i < run2Steps; i++) {
       const stepY = floorY + landingH + run2StepH * (i + 1);
-      const stepX = landingX - (i + 1) * run2StepW;
-      // Tread
-      box(run2StepW - 2, stepThickness, stairWidth, C.stairs,
-        stepX, stepY - stepThickness, -halfW + WT, groups.furniture);
-      // Stringer
-      box(run2StepW - 2, stepY - floorY, 2, C.stairs,
-        stepX, floorY, -halfW + WT, groups.furniture);
+      const stepZ = -halfW + WT + landingSize + i * run2StepD;
+      // Tread — width in x-direction is stairWidth, depth in z-direction is run2StepD
+      box(stairWidth, stepThickness, run2StepD - 2, C.stairs,
+        landingX, stepY - stepThickness, stepZ, groups.furniture);
     }
 
     // Woodstove — flush against interior wall, at the inside corner of the L
-    // To the right of where the stairs land (between landing and couch)
-    const stoveX = kitchenEnd + landingSize + 4;
+    // Just to the right of the landing (between stairs and couch)
+    const stoveX = kitchenEnd + 4;
     const stoveZ = -halfW + WT; // flush against interior wall
     box(WOODSTOVE, 24, WOODSTOVE, C.stove, stoveX, floorY, stoveZ, groups.furniture);
 
-    // Flue pipe straight up against interior wall
+    // Flue pipe straight up
     const fluePipeGeo = new THREE.CylinderGeometry(2, 2, wallH + 40, 8);
     const fluePipe = new THREE.Mesh(fluePipeGeo, new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.4 }));
     fluePipe.position.set(stoveX + 8, floorY + wallH / 2, stoveZ + 8);
