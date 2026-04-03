@@ -1,0 +1,36 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ViewerPage from "../components/ViewerPage.astro";
+const base = import.meta.env.BASE_URL;
+---
+
+<Layout title="3D Viewer — 26 x 10">
+  <span class="page-tag">Interactive</span>
+  <h1>3D Model — 26' &times; 10'</h1>
+  <p class="lead">Wide variant. <a href="https://www.ironeagletinyhousetrailers-mobile.com/10-ft-wide" target="_blank" rel="noopener">PAD-14k26x10'wide</a>, dual 7k axles, 118" frame. L-shaped counter, bigger shower, dining table. <a href={`${base}viewer/`}>&larr; Compare with 28' &times; 8'6"</a></p>
+
+  <div class="table-wrap">
+    <table class="kv">
+      <tbody>
+        <tr><td>Floor area</td><td>260 sq ft (+22 vs 28'&times;8'6") — more space in a shorter trailer</td></tr>
+        <tr><td>Trailer</td><td>$8,170 vs $10,530 — saves $2,360 + lighter + 2 axles vs 3</td></tr>
+        <tr><td>Zones</td><td>Bath 6' + Kitchen 9' + Living 9' = 24' interior</td></tr>
+        <tr><td>Kitchen</td><td>L-shaped counter: porch-side main + return along bath partition</td></tr>
+        <tr><td>Shower</td><td>36&times;42" (vs 36&times;32" in narrow plan)</td></tr>
+        <tr><td>Dining</td><td>Real table in kitchen zone — living is just living</td></tr>
+        <tr><td>Loft</td><td>Wider ledges — 18" each side vs 9.5"</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ViewerPage configName="26x10" />
+
+  <div class="page-nav">
+    <a href={`${base}viewer/`}>&larr; 28' &times; 8'6" Viewer</a>
+    <span></span>
+  </div>
+</Layout>
+
+<script>
+  import '../lib/viewer-init';
+</script>

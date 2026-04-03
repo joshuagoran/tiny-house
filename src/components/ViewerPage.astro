@@ -1,0 +1,109 @@
+---
+type Props = {
+  configName: string;
+};
+const { configName } = Astro.props;
+---
+
+<div id="viewer-container">
+  <canvas id="viewer"></canvas>
+  <div id="viewer-controls">
+    <div class="control-group">
+      <label class="control-label">Roof style</label>
+      <select id="roof-style">
+        <option value="shed-flat">Shed — 1:12 (flat)</option>
+        <option value="shed-steep">Shed — 4:12</option>
+        <option value="gable">Gable — 4:12</option>
+      </select>
+    </div>
+    <label><input type="checkbox" id="toggle-roof" checked /> Roof</label>
+    <label><input type="checkbox" id="toggle-loft" checked /> Loft</label>
+    <label><input type="checkbox" id="toggle-loft-walls" checked /> 2nd floor walls</label>
+    <label><input type="checkbox" id="toggle-furniture" checked /> Furniture</label>
+    <label><input type="checkbox" id="toggle-porch" checked /> Porch</label>
+    <label><input type="checkbox" id="toggle-ext-walls" checked /> Exterior walls</label>
+    <label><input type="checkbox" id="toggle-int-walls" checked /> Interior walls</label>
+  </div>
+  <div id="viewer-info"></div>
+</div>
+<div id="viewer-config" data-config={configName} style="display:none"></div>
+
+<style>
+  #viewer-container {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    aspect-ratio: 16 / 10;
+    background: #d4dce8;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 1rem 0 2rem;
+  }
+
+  #viewer {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  #viewer-controls {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 10px 14px;
+    border-radius: 8px;
+    backdrop-filter: blur(8px);
+  }
+
+  #viewer-controls label {
+    color: #ccc;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+  }
+
+  #viewer-controls input {
+    accent-color: #5b7a5e;
+  }
+
+  #viewer-controls select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ccc;
+    font-size: 0.75rem;
+    padding: 3px 6px;
+    border-radius: 4px;
+    width: 100%;
+  }
+
+  .control-group {
+    margin-bottom: 4px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .control-label {
+    font-size: 0.7rem;
+    color: #888;
+    margin-bottom: 3px;
+    display: block;
+  }
+
+  #viewer-info {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    color: #999;
+    font-size: 0.75rem;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 6px 10px;
+    border-radius: 6px;
+  }
+</style>
