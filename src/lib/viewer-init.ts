@@ -27,6 +27,8 @@ const configs: Record<string, HouseConfig> = {
     axleSpread: 148,
     rearOverhang: 89,
     axleCount: 3,
+    fenderStart: 99,      // dim E: 99" from front to first axle
+    fenderLength: 148,    // dim C: covers the axle spread
     kitchen: { style: 'single', counterDepth: 24 },
     shower: { w: 36, d: 32 },
     hasDiningTable: false,
@@ -49,6 +51,8 @@ const configs: Record<string, HouseConfig> = {
     axleSpread: 157,
     rearOverhang: 88,
     axleCount: 2,
+    fenderStart: 157,     // dim C: 157" from front of frame
+    fenderLength: 67,     // dim E: 67" fender well length
     kitchen: { style: 'L-shape', counterDepth: 24, returnLength: 36 },
     shower: { w: 36, d: 42 },   // bigger shower
     hasDiningTable: true,
@@ -69,10 +73,11 @@ const info = document.getElementById('viewer-info')!;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xd4dce8);
-scene.fog = new THREE.Fog(0xd4dce8, 900, 1800);
+scene.fog = new THREE.Fog(0xd4dce8, 500, 1000);
 
 const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 1, 3000);
-camera.position.set(300, 250, 400);
+// Position camera relative to trailer size, centered on it
+camera.position.set(cfg.trailerLength * 0.8, 200, cfg.trailerWidth * 2.5);
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(container.clientWidth, container.clientHeight);
@@ -85,7 +90,7 @@ controls.target.set(cfg.trailerLength / 2, cfg.mainCeilingHeight / 2 + 22, 0);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
 controls.minDistance = 100;
-controls.maxDistance = 1200;
+controls.maxDistance = 800;
 controls.maxPolarAngle = Math.PI * 0.85;
 
 // ── Lighting ──
@@ -132,16 +137,17 @@ scene.add(wallsProxy);
 
 // ── Ground ──
 
-const groundGeo = new THREE.PlaneGeometry(1200, 1200);
+const groundGeo = new THREE.PlaneGeometry(600, 600);
 const ground = new THREE.Mesh(groundGeo, new THREE.MeshStandardMaterial({ color: C.ground, roughness: 1 }));
 ground.rotation.x = -Math.PI / 2;
+ground.position.set(cfg.trailerLength / 2, 0, 0);
 ground.receiveShadow = true;
 scene.add(ground);
 
 // ── Build scene ──
 
 buildTrailer(cfg, scene);
-buildHouse(cfg, groups);
+buildHouse(cfg, groups, scene);
 buildPorch(cfg, groups);
 
 // Move wallsProxy children — exterior vs interior

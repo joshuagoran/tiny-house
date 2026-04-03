@@ -22,6 +22,8 @@ export type HouseConfig = {
   axleSpread: number;
   rearOverhang: number;
   axleCount: number;
+  fenderStart: number;   // distance from front of frame to start of fender wells (dim C)
+  fenderLength: number;  // length of fender well section (dim E)
   // Layout variant
   kitchen: KitchenLayout;
   shower: { w: number; d: number };
@@ -195,17 +197,16 @@ export function buildTrailer(cfg: HouseConfig, scene: THREE.Object3D) {
     }
   }
 
-  // Fender flashing — small individual arches per axle pair, not one long strip
-  // Each fender covers about 30" per axle
-  for (const axleX of axlePositions) {
-    for (const zSide of [-1, 1]) {
-      const fz = zSide > 0 ? halfFW - 1 : -halfFW - 2;
-      box(30, 8.5, 3, C.trailer, axleX - 15, deckY - railH, fz, scene);
-    }
+  // Fender flashing — per spec dimensions
+  const fenderX = cfg.fenderStart;
+  const fenderLen = cfg.fenderLength;
+  for (const zSide of [-1, 1]) {
+    const fz = zSide > 0 ? halfFW - 1 : -halfFW - 2;
+    box(fenderLen, 8.5, 3, C.trailer, fenderX, deckY - railH, fz, scene);
   }
 }
 
-export function buildHouse(cfg: HouseConfig, groups: Groups) {
+export function buildHouse(cfg: HouseConfig, groups: Groups, scene: THREE.Object3D) {
   const { trailerLength: L, trailerWidth: W, wallThickness: WT, mainCeilingHeight: wallH,
     loftFloorThickness: loftFloorH, bathLength, kitchenLength, livingLength, loftLength,
     kitchen, shower, hasDiningTable } = cfg;
@@ -214,8 +215,8 @@ export function buildHouse(cfg: HouseConfig, groups: Groups) {
   const bathEnd = bathLength;
   const kitchenEnd = bathEnd + kitchenLength;
 
-  // ── Floor ──
-  box(L, 4, W, C.floor, 0, floorY - 4, -halfW, groups.walls);
+  // ── Floor (added to scene directly, not wall groups) ──
+  box(L, 4, W, C.floor, 0, floorY - 4, -halfW, scene);
 
   // ── Exterior walls (first floor) ──
   wallBox(L, wallH, WT, C.walls, 0, floorY, -halfW, groups.walls);           // interior
@@ -226,10 +227,10 @@ export function buildHouse(cfg: HouseConfig, groups: Groups) {
   // Bath/kitchen partition
   wallBox(WT, wallH, W - 2 * WT, C.wallsInterior, bathLength - WT / 2, floorY, -halfW + WT, groups.walls);
 
-  // ── Zone floors ──
-  box(bathLength - WT, 0.5, W - 2 * WT, C.bath, WT, floorY, -halfW + WT, groups.walls);
-  box(kitchenLength, 0.5, W - 2 * WT, C.kitchen, bathEnd, floorY, -halfW + WT, groups.walls);
-  box(livingLength - WT, 0.5, W - 2 * WT, C.living, kitchenEnd, floorY, -halfW + WT, groups.walls);
+  // ── Zone floors (added to scene directly) ──
+  box(bathLength - WT, 0.5, W - 2 * WT, C.bath, WT, floorY, -halfW + WT, scene);
+  box(kitchenLength, 0.5, W - 2 * WT, C.kitchen, bathEnd, floorY, -halfW + WT, scene);
+  box(livingLength - WT, 0.5, W - 2 * WT, C.living, kitchenEnd, floorY, -halfW + WT, scene);
 
   // ── Windows ──
   windowPane(48, 36, WT / 2, floorY + 36, 0, groups.walls, Math.PI / 2);                     // bath gable
