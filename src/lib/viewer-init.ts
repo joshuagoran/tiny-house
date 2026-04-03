@@ -82,7 +82,7 @@ const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container
 // x: offset toward living end to see the bathroom end in foreground
 // y: elevated for a good overview angle
 // z: out on the porch side, far enough to see the full width
-camera.position.set(cfg.trailerLength * 0.65, 200, cfg.trailerWidth * 5);
+camera.position.set(cfg.trailerLength * 0.65, 350, cfg.trailerWidth * 3);
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(container.clientWidth, container.clientHeight);
