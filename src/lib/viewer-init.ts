@@ -32,6 +32,7 @@ const configs: Record<string, HouseConfig> = {
     kitchen: { style: 'single', counterDepth: 24 },
     shower: { w: 36, d: 32 },
     hasDiningTable: false,
+    stairStyle: 'straight',
   },
   '26x10': {
     label: "26' × 10'",
@@ -53,9 +54,10 @@ const configs: Record<string, HouseConfig> = {
     axleCount: 2,
     fenderStart: 157,     // dim C: 157" from front of frame
     fenderLength: 67,     // dim E: 67" fender well length
-    kitchen: { style: 'L-shape', counterDepth: 24, returnLength: 36 },
+    kitchen: { style: 'single', counterDepth: 24 },
     shower: { w: 36, d: 42 },   // bigger shower
-    hasDiningTable: true,
+    hasDiningTable: false,
+    stairStyle: 'L-shape',
   },
 };
 

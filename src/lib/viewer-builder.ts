@@ -28,6 +28,7 @@ export type HouseConfig = {
   kitchen: KitchenLayout;
   shower: { w: number; d: number };
   hasDiningTable: boolean;
+  stairStyle: 'straight' | 'L-shape';
 };
 
 export type KitchenLayout = {
@@ -254,34 +255,89 @@ export function buildHouse(cfg: HouseConfig, groups: Groups, scene: THREE.Object
   box(counterLen, COUNTER_HEIGHT, counterDepth, C.kitchen,
     counterX, floorY, halfW - WT - counterDepth, groups.furniture);
 
-  // L-shape return along bath partition wall
-  if (kitchen.style === 'L-shape' && kitchen.returnLength) {
-    box(counterDepth, COUNTER_HEIGHT, kitchen.returnLength, C.kitchen,
-      bathEnd + 2, floorY, halfW - WT - counterDepth - kitchen.returnLength, groups.furniture);
-  }
-
   // Cooktop on counter
   box(12, 2, 20, C.stove,
     counterX + counterLen / 2 + 20, floorY + COUNTER_HEIGHT, halfW - WT - 22, groups.furniture);
 
-  // ── Stairs (interior/top wall) ──
-  const stairX = bathEnd + 4;
-  const stairLen = kitchenLength + 36;
-  const stairSteps = 8;
-  const stepH = (wallH + loftFloorH) / stairSteps;
-  const stepW = stairLen / stairSteps;
-  for (let i = 0; i < stairSteps; i++) {
-    box(stepW - 1, stepH * (i + 1), STAIR_DEPTH, C.stairs,
-      stairX + (stairSteps - 1 - i) * stepW, floorY, -halfW + WT, groups.furniture);
-  }
+  // ── Stairs + Woodstove ──
+  const totalRise = wallH + loftFloorH;
 
-  // ── Woodstove ──
-  box(WOODSTOVE, 24, WOODSTOVE, C.stove,
-    kitchenEnd + 6, floorY, -halfW + WT + STAIR_DEPTH + 8, groups.furniture);
-  const fluePipeGeo = new THREE.CylinderGeometry(2, 2, wallH + 40, 8);
-  const fluePipe = new THREE.Mesh(fluePipeGeo, new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.4 }));
-  fluePipe.position.set(kitchenEnd + 6 + 8, floorY + wallH / 2, -halfW + WT + STAIR_DEPTH + 8 + 8);
-  groups.furniture.add(fluePipe);
+  if (cfg.stairStyle === 'L-shape') {
+    // L-shaped stairs in the living zone:
+    // First run: along interior wall (z = -halfW), going from living toward kitchen (x decreasing)
+    // Corner landing at the kitchen/living boundary
+    // Second run: continues along interior wall toward bathroom (x decreasing), rising to loft
+
+    const stairWidth = STAIR_DEPTH; // 28" wide treads
+    const landingSize = 32; // 32" square landing at the corner
+
+    // First run — along interior wall in living zone, heading toward kitchen
+    // Starts in living, ends at kitchenEnd
+    const run1Len = livingLength - landingSize - 8;
+    const run1Steps = 4;
+    const run1StepW = run1Len / run1Steps;
+    const run1Rise = totalRise * 0.45; // first run covers ~45% of total rise
+    const run1StepH = run1Rise / run1Steps;
+
+    for (let i = 0; i < run1Steps; i++) {
+      // Steps go from right (living gable) toward left (kitchen), so highest step is leftmost
+      box(run1StepW - 1, run1StepH * (i + 1), stairWidth, C.stairs,
+        L - WT - 8 - (i + 1) * run1StepW, floorY,
+        -halfW + WT, groups.furniture);
+    }
+
+    // Corner landing
+    const landingX = kitchenEnd - landingSize + 4;
+    const landingH = run1Rise + run1StepH;
+    box(landingSize, landingH, landingSize, C.stairs,
+      landingX, floorY, -halfW + WT, groups.furniture);
+
+    // Second run — continues along interior wall from landing into kitchen toward bathroom
+    const run2Len = kitchenLength - landingSize + 20;
+    const run2Steps = 4;
+    const run2StepW = run2Len / run2Steps;
+    const run2Rise = totalRise - landingH;
+    const run2StepH = run2Rise / run2Steps;
+
+    for (let i = 0; i < run2Steps; i++) {
+      box(run2StepW - 1, landingH + run2StepH * (i + 1), stairWidth, C.stairs,
+        landingX - (i + 1) * run2StepW, floorY,
+        -halfW + WT, groups.furniture);
+    }
+
+    // Woodstove — tucked at the inside corner of the L, against interior wall
+    // Right next to where the stairs turn, to the right of the landing
+    const stoveX = kitchenEnd + 4;
+    const stoveZ = -halfW + WT + stairWidth + 4;
+    box(WOODSTOVE, 24, WOODSTOVE, C.stove, stoveX, floorY, stoveZ, groups.furniture);
+
+    // Flue pipe straight up
+    const fluePipeGeo = new THREE.CylinderGeometry(2, 2, wallH + 40, 8);
+    const fluePipe = new THREE.Mesh(fluePipeGeo, new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.4 }));
+    fluePipe.position.set(stoveX + 8, floorY + wallH / 2, stoveZ + 8);
+    groups.furniture.add(fluePipe);
+
+  } else {
+    // Straight stairs — original 28x8.5 layout
+    const stairX = bathEnd + 4;
+    const stairLen = kitchenLength + 36;
+    const stairSteps = 8;
+    const stepH = totalRise / stairSteps;
+    const stepW = stairLen / stairSteps;
+    for (let i = 0; i < stairSteps; i++) {
+      box(stepW - 1, stepH * (i + 1), STAIR_DEPTH, C.stairs,
+        stairX + (stairSteps - 1 - i) * stepW, floorY,
+        -halfW + WT, groups.furniture);
+    }
+
+    // Woodstove — near interior wall at kitchen/living boundary
+    box(WOODSTOVE, 24, WOODSTOVE, C.stove,
+      kitchenEnd + 6, floorY, -halfW + WT + STAIR_DEPTH + 8, groups.furniture);
+    const fluePipeGeo = new THREE.CylinderGeometry(2, 2, wallH + 40, 8);
+    const fluePipe = new THREE.Mesh(fluePipeGeo, new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.4 }));
+    fluePipe.position.set(kitchenEnd + 6 + 8, floorY + wallH / 2, -halfW + WT + STAIR_DEPTH + 8 + 8);
+    groups.furniture.add(fluePipe);
+  }
 
   // ── Living furniture ──
   const couchDepth = 28;
@@ -293,17 +349,7 @@ export function buildHouse(cfg: HouseConfig, groups: Groups, scene: THREE.Object
   box(couchArm, 18, couchDepth, C.furniture, couchX - couchArm, floorY, -halfW + WT, groups.furniture);
   box(couchArm, 18, couchDepth, C.furniture, couchX - couchArm, floorY, halfW - WT - couchDepth, groups.furniture);
 
-  // Coffee table
-  box(48, 18, 24, C.furniture, couchX - couchArm - 56, floorY, -12, groups.furniture);
-
-  // Dining table (26x10 variant)
-  if (hasDiningTable) {
-    box(48, 30, 30, C.furniture,
-      bathEnd + kitchenLength / 2 - 24, floorY,
-      halfW - WT - counterDepth - 40, groups.furniture);
-  }
-
-  // Desk
+  // Desk — against interior wall, between stove and couch
   box(48, 30, 24, C.furniture,
     kitchenEnd + 30, floorY, -halfW + WT + STAIR_DEPTH + 8, groups.furniture);
 
