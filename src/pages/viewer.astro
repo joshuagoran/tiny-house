@@ -11,6 +11,14 @@ const base = import.meta.env.BASE_URL;
   <div id="viewer-container">
     <canvas id="viewer"></canvas>
     <div id="viewer-controls">
+      <div class="control-group">
+        <label class="control-label">Roof style</label>
+        <select id="roof-style">
+          <option value="shed-flat">Shed — 1:12 (flat)</option>
+          <option value="shed-steep">Shed — 4:12</option>
+          <option value="gable">Gable — 4:12</option>
+        </select>
+      </div>
       <label><input type="checkbox" id="toggle-roof" checked /> Roof</label>
       <label><input type="checkbox" id="toggle-loft" checked /> Loft</label>
       <label><input type="checkbox" id="toggle-furniture" checked /> Furniture</label>
@@ -71,6 +79,29 @@ const base = import.meta.env.BASE_URL;
     accent-color: #5b7a5e;
   }
 
+  #viewer-controls select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ccc;
+    font-size: 0.75rem;
+    padding: 3px 6px;
+    border-radius: 4px;
+    width: 100%;
+  }
+
+  .control-group {
+    margin-bottom: 4px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .control-label {
+    font-size: 0.7rem;
+    color: #888;
+    margin-bottom: 3px;
+    display: block;
+  }
+
   #viewer-info {
     position: absolute;
     bottom: 12px;
@@ -94,7 +125,6 @@ const base = import.meta.env.BASE_URL;
   const WALL_THICKNESS = 3.5;
   const MAIN_CEILING_HEIGHT = 6.5 * 12; // 6'6" average
   const LOFT_FLOOR_THICKNESS = 4.5;
-  const ROOF_ASSEMBLY = 7;
 
   const BATH_LENGTH = 6 * 12;
   const KITCHEN_LENGTH = 10 * 12;
@@ -103,10 +133,10 @@ const base = import.meta.env.BASE_URL;
   const PORCH_LENGTH = TRAILER_LENGTH;
   const PORCH_WIDTH = 8 * 12;
 
-  // Shed roof: high side on porch, low on interior. 4/12 pitch
-  const ROOF_PITCH = 4 / 12;
-  const ROOF_HIGH = MAIN_CEILING_HEIGHT + LOFT_FLOOR_THICKNESS + 52; // ~4'4" loft clearance high side
-  const ROOF_LOW = ROOF_HIGH - TRAILER_WIDTH * ROOF_PITCH;
+  const ROOF_ASSEMBLY = 7;
+  // Max legal height from ground: 13'6" = 162"
+  // Available above trailer deck: 162 - TRAILER_DECK_HEIGHT = 140"
+  const MAX_ROOF_TOP = 162 - TRAILER_DECK_HEIGHT; // 140" above deck
 
   const TRAILER_DECK_HEIGHT = 22;
   const PORCH_DECK_HEIGHT = 16;
@@ -416,33 +446,136 @@ const base = import.meta.env.BASE_URL;
   wallBox(WT, 36, TRAILER_WIDTH - 2 * WT, C.wallsInterior,
     WT + 84, loftY + LOFT_FLOOR_THICKNESS, -halfW + WT, groups.loft);
 
-  // ── Roof ──
+  // ── Roof (dynamic — rebuilt on style change) ──
 
-  // Shed roof — high side on porch (positive z), low on interior (negative z)
-  const roofGeo = new THREE.BufferGeometry();
   const roofOverhang = 12;
-  const roofVerts = new Float32Array([
-    // Triangle 1
-    -roofOverhang, floorY + ROOF_LOW - ROOF_ASSEMBLY, -halfW - roofOverhang,
-    TRAILER_LENGTH + roofOverhang, floorY + ROOF_LOW - ROOF_ASSEMBLY, -halfW - roofOverhang,
-    TRAILER_LENGTH + roofOverhang, floorY + ROOF_HIGH, halfW + roofOverhang,
-    // Triangle 2
-    -roofOverhang, floorY + ROOF_LOW - ROOF_ASSEMBLY, -halfW - roofOverhang,
-    TRAILER_LENGTH + roofOverhang, floorY + ROOF_HIGH, halfW + roofOverhang,
-    -roofOverhang, floorY + ROOF_HIGH, halfW + roofOverhang,
-  ]);
-  roofGeo.setAttribute('position', new THREE.BufferAttribute(roofVerts, 3));
-  roofGeo.computeVertexNormals();
-
   const roofMat = new THREE.MeshStandardMaterial({
     color: C.roof,
     roughness: 0.3,
     metalness: 0.6,
     side: THREE.DoubleSide,
   });
-  const roofMesh = new THREE.Mesh(roofGeo, roofMat);
-  roofMesh.castShadow = true;
-  groups.roof.add(roofMesh);
+
+  let roofMeshes: THREE.Mesh[] = [];
+
+  function clearRoof() {
+    for (const m of roofMeshes) {
+      groups.roof.remove(m);
+      m.geometry.dispose();
+    }
+    roofMeshes = [];
+  }
+
+  function buildShedRoof(pitch: number) {
+    clearRoof();
+    // High side on porch (+z), low side on interior (-z)
+    // Roof top at max legal height on the high side
+    const roofHighY = floorY + MAX_ROOF_TOP;
+    const drop = TRAILER_WIDTH * pitch;
+    const roofLowY = roofHighY - drop;
+
+    const geo = new THREE.BufferGeometry();
+    const oh = roofOverhang;
+    const verts = new Float32Array([
+      -oh, roofLowY, -halfW - oh,
+      TRAILER_LENGTH + oh, roofLowY, -halfW - oh,
+      TRAILER_LENGTH + oh, roofHighY, halfW + oh,
+      -oh, roofLowY, -halfW - oh,
+      TRAILER_LENGTH + oh, roofHighY, halfW + oh,
+      -oh, roofHighY, halfW + oh,
+    ]);
+    geo.setAttribute('position', new THREE.BufferAttribute(verts, 3));
+    geo.computeVertexNormals();
+    const mesh = new THREE.Mesh(geo, roofMat);
+    mesh.castShadow = true;
+    groups.roof.add(mesh);
+    roofMeshes.push(mesh);
+
+    // Update info with loft heights
+    const loftHighClear = roofHighY - (floorY + MAIN_CEILING_HEIGHT + LOFT_FLOOR_THICKNESS) - ROOF_ASSEMBLY;
+    const loftLowClear = roofLowY - (floorY + MAIN_CEILING_HEIGHT + LOFT_FLOOR_THICKNESS) - ROOF_ASSEMBLY;
+    info.textContent = `Shed ${pitch === 1/12 ? '1' : '4'}:12 · loft clearance: ${(loftHighClear/12).toFixed(1)}' high side, ${(loftLowClear/12).toFixed(1)}' low side`;
+  }
+
+  function buildGableRoof(pitch: number) {
+    clearRoof();
+    // Ridge runs along x-axis at center (z=0)
+    // Both sides slope down equally from ridge
+    const ridgeY = floorY + MAX_ROOF_TOP;
+    const eaveY = ridgeY - (halfW * pitch);
+    const oh = roofOverhang;
+
+    // Porch side (positive z)
+    const geo1 = new THREE.BufferGeometry();
+    const verts1 = new Float32Array([
+      -oh, eaveY, halfW + oh,
+      TRAILER_LENGTH + oh, eaveY, halfW + oh,
+      TRAILER_LENGTH + oh, ridgeY, 0,
+      -oh, eaveY, halfW + oh,
+      TRAILER_LENGTH + oh, ridgeY, 0,
+      -oh, ridgeY, 0,
+    ]);
+    geo1.setAttribute('position', new THREE.BufferAttribute(verts1, 3));
+    geo1.computeVertexNormals();
+    const mesh1 = new THREE.Mesh(geo1, roofMat);
+    mesh1.castShadow = true;
+    groups.roof.add(mesh1);
+    roofMeshes.push(mesh1);
+
+    // Interior side (negative z)
+    const geo2 = new THREE.BufferGeometry();
+    const verts2 = new Float32Array([
+      -oh, ridgeY, 0,
+      TRAILER_LENGTH + oh, ridgeY, 0,
+      TRAILER_LENGTH + oh, eaveY, -halfW - oh,
+      -oh, ridgeY, 0,
+      TRAILER_LENGTH + oh, eaveY, -halfW - oh,
+      -oh, eaveY, -halfW - oh,
+    ]);
+    geo2.setAttribute('position', new THREE.BufferAttribute(verts2, 3));
+    geo2.computeVertexNormals();
+    const mesh2 = new THREE.Mesh(geo2, roofMat);
+    mesh2.castShadow = true;
+    groups.roof.add(mesh2);
+    roofMeshes.push(mesh2);
+
+    // Gable end triangles
+    const gableMat = new THREE.MeshStandardMaterial({
+      color: C.walls,
+      roughness: 0.7,
+      metalness: 0.02,
+      side: THREE.DoubleSide,
+    });
+
+    for (const gableX of [0, TRAILER_LENGTH]) {
+      const gGeo = new THREE.BufferGeometry();
+      const gVerts = new Float32Array([
+        gableX, eaveY, -halfW,
+        gableX, eaveY, halfW,
+        gableX, ridgeY, 0,
+      ]);
+      gGeo.setAttribute('position', new THREE.BufferAttribute(gVerts, 3));
+      gGeo.computeVertexNormals();
+      const gMesh = new THREE.Mesh(gGeo, gableMat);
+      groups.roof.add(gMesh);
+      roofMeshes.push(gMesh);
+    }
+
+    const loftCenterClear = ridgeY - (floorY + MAIN_CEILING_HEIGHT + LOFT_FLOOR_THICKNESS) - ROOF_ASSEMBLY;
+    const loftEdgeClear = eaveY - (floorY + MAIN_CEILING_HEIGHT + LOFT_FLOOR_THICKNESS) - ROOF_ASSEMBLY;
+    info.textContent = `Gable 4:12 · loft clearance: ${(loftCenterClear/12).toFixed(1)}' at ridge, ${(loftEdgeClear/12).toFixed(1)}' at eaves`;
+  }
+
+  function setRoofStyle(style: string) {
+    switch (style) {
+      case 'shed-flat': buildShedRoof(1/12); break;
+      case 'shed-steep': buildShedRoof(4/12); break;
+      case 'gable': buildGableRoof(4/12); break;
+    }
+  }
+
+  // Build initial roof
+  setRoofStyle('shed-flat');
 
   // ── Covered porch ──
 
@@ -484,9 +617,8 @@ const base = import.meta.env.BASE_URL;
   door.rotation.y = Math.PI * 0.15;
   groups.walls.add(door);
 
-  // ── Skylights ──
+  // ── Skylights (positioned at a reasonable height, not tied to roof geometry) ──
 
-  // Kitchen skylight (in roof area)
   const skyGeo = new THREE.PlaneGeometry(30, 30);
   const skyMat = new THREE.MeshStandardMaterial({
     color: C.window,
@@ -495,10 +627,8 @@ const base = import.meta.env.BASE_URL;
     side: THREE.DoubleSide,
   });
   const skyMesh = new THREE.Mesh(skyGeo, skyMat);
-  const skyRoofZ = 0;
-  const skyRoofY = floorY + ROOF_LOW + (ROOF_HIGH - ROOF_LOW + ROOF_ASSEMBLY) * ((skyRoofZ + halfW) / TRAILER_WIDTH);
-  skyMesh.position.set(BATH_LENGTH + KITCHEN_LENGTH / 2, skyRoofY - 2, skyRoofZ);
-  skyMesh.rotation.x = -Math.PI / 2 + Math.atan(ROOF_PITCH);
+  skyMesh.position.set(BATH_LENGTH + KITCHEN_LENGTH / 2, floorY + MAX_ROOF_TOP - 10, 0);
+  skyMesh.rotation.x = -Math.PI / 2;
   groups.roof.add(skyMesh);
 
   // ── Toggle controls ──
@@ -511,9 +641,11 @@ const base = import.meta.env.BASE_URL;
     });
   }
 
-  // ── Info display ──
-
-  info.textContent = 'Drag to orbit · Scroll to zoom · Right-drag to pan';
+  // Roof style switcher
+  const roofSelect = document.getElementById('roof-style') as HTMLSelectElement;
+  roofSelect?.addEventListener('change', () => {
+    setRoofStyle(roofSelect.value);
+  });
 
   // ── Resize handling ──
 
