@@ -78,7 +78,7 @@ scene.background = new THREE.Color(0xd4dce8);
 scene.fog = new THREE.Fog(0xd4dce8, 500, 1000);
 
 const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 1, 3000);
-camera.position.set(cfg.trailerLength * 0.5, 300, cfg.trailerWidth * 4);
+camera.position.set(352, 371, 86);
 
 // Expose camera and controls on canvas for console debugging
 (canvas as any).__camera = camera;
@@ -90,7 +90,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(cfg.trailerLength * 0.5, 22 + cfg.mainCeilingHeight * 0.3, 0);
+controls.target.set(199, 233, -147);
 (canvas as any).__controls = controls;
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
