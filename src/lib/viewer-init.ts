@@ -214,6 +214,16 @@ for (const name of toggleNames) {
 const roofSelect = document.getElementById('roof-style') as HTMLSelectElement;
 roofSelect?.addEventListener('change', () => setRoofStyle(roofSelect.value));
 
+// Copy camera position button
+const copyBtn = document.getElementById('copy-camera');
+copyBtn?.addEventListener('click', () => {
+  const p = camera.position;
+  const t = controls.target;
+  const text = `camera: (${p.x.toFixed(0)}, ${p.y.toFixed(0)}, ${p.z.toFixed(0)}) target: (${t.x.toFixed(0)}, ${t.y.toFixed(0)}, ${t.z.toFixed(0)})`;
+  navigator.clipboard.writeText(text);
+  info.textContent = text;
+});
+
 // ── Resize ──
 
 function onResize() {

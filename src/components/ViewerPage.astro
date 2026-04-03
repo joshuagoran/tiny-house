@@ -23,6 +23,7 @@ const { configName } = Astro.props;
     <label><input type="checkbox" id="toggle-porch" checked /> Porch</label>
     <label><input type="checkbox" id="toggle-ext-walls" checked /> Exterior walls</label>
     <label><input type="checkbox" id="toggle-int-walls" checked /> Interior walls</label>
+    <button id="copy-camera" style="margin-top:6px;padding:4px 8px;font-size:0.7rem;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);color:#ccc;border-radius:4px;cursor:pointer;">Copy camera position</button>
   </div>
   <div id="viewer-info"></div>
 </div>
@@ -31,9 +32,10 @@ const { configName } = Astro.props;
 <style>
   #viewer-container {
     position: relative;
-    width: 100%;
-    max-width: 900px;
-    aspect-ratio: 16 / 10;
+    width: calc(100vw - var(--sidebar-w, 240px));
+    max-width: calc(100vw - var(--sidebar-w, 240px));
+    margin-left: calc(-2.5rem);
+    aspect-ratio: 16 / 9;
     background: #d4dce8;
     border-radius: 10px;
     overflow: hidden;
