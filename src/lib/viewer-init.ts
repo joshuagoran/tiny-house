@@ -43,7 +43,7 @@ const configs: Record<string, HouseConfig> = {
     loftFloorThickness: 4.5,
     bathLength: 6 * 12,
     kitchenLength: 9 * 12,    // -1' from original 10'
-    livingLength: 9 * 12,     // -1' from original 12' (= 6+9+9 = 24' interior)
+    livingLength: 11 * 12,    // -1' from original 12' (= 6+9+11 = 26')
     loftLength: 8 * 12,       // 8' (6' bath + 2' into kitchen)
     porchWidth: 8 * 12,
     // PAD-14k26x10'wide

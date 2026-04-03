@@ -274,60 +274,88 @@ export function buildHouse(cfg: HouseConfig, groups: Groups, scene: THREE.Object
   const totalRise = wallH + loftFloorH;
 
   if (cfg.stairStyle === 'L-shape') {
-    // L-shaped stairs (true perpendicular L):
-    // Run 1: along interior wall in living zone, heading left toward kitchen (x-direction)
-    // Landing: square platform at the corner, against interior wall
-    // Run 2: PERPENDICULAR — from landing, going away from interior wall across the width (z-direction)
-    //         This run rises to loft level, with the loft opening above it
+    // L-shaped stairs — true perpendicular L, viewed from above:
+    //
+    //   Interior wall (z = -halfW + WT)
+    //   ──────────────────────────────────────────────
+    //     ←←← Run 2 ←←←  [LANDING] [STOVE]   couch→
+    //                     [ Run 1 ]
+    //                     [   ↑   ]
+    //                     [   ↑   ]
+    //                     [ start ]
+    //   ──────────────────────────────────────────────
+    //   Porch wall (z = +halfW - WT)
+    //
+    // Run 1: z-direction (toward interior wall), in living zone. You walk toward the wall.
+    // Landing: square platform at interior wall, where run 1 meets run 2.
+    // Run 2: x-direction (along interior wall toward bathroom/loft). You walk left.
+    // Stove: at inside corner of L, against interior wall, right of landing.
 
-    const stairWidth = STAIR_DEPTH; // 28" wide treads
-    const landingSize = 32;
-    const stepThickness = 3;
+    const stairTreadWidth = 28;  // width of treads perpendicular to walking direction
+    const landingSize = 32;      // square landing
+    const stepThick = 3;         // tread thickness
 
-    // Run 1 — along interior wall in living zone, treads face x-direction
-    const run1Len = livingLength - landingSize - 12;
-    const run1Steps = 4;
-    const run1StepW = run1Len / run1Steps;
-    const run1Rise = totalRise * 0.45;
+    // ── Landing position (the anchor point) ──
+    // Against interior wall, near kitchen/living boundary
+    const landingX = kitchenEnd;                      // x = 180 (kitchen/living boundary)
+    const landingZ = -halfW + WT;                     // z = -56.5 (flush with interior wall)
+    // Landing spans: x = 180 to 212, z = -56.5 to -24.5
+
+    // ── Run 1: z-direction, 3 steps, in living zone ──
+    // Walking direction: toward interior wall (z decreasing)
+    // Treads span in x-direction (width = stairTreadWidth = 28")
+    // Positioned so treads align with the landing in x
+    const run1Steps = 3;
+    const run1TreadDepth = 11;  // depth in z per step
+    const run1Rise = totalRise * 0.35;
     const run1StepH = run1Rise / run1Steps;
+
+    // Run 1 treads start BELOW the landing (more positive z = further from wall)
+    // Step 1 (lowest) is furthest from wall, step 3 (highest) is closest to landing
+    const run1X = landingX + 2;  // aligned with landing, slight offset
+    const run1StartZ = landingZ + landingSize;  // z = -24.5 (porch-side edge of landing)
 
     for (let i = 0; i < run1Steps; i++) {
       const stepY = floorY + run1StepH * (i + 1);
-      const stepX = L - WT - 12 - (i + 1) * run1StepW;
-      // Tread
-      box(run1StepW - 2, stepThickness, stairWidth, C.stairs,
-        stepX, stepY - stepThickness, -halfW + WT, groups.furniture);
+      // Step i=0 is highest (closest to landing), i=2 is lowest (furthest from wall)
+      const stepZ = run1StartZ + (run1Steps - 1 - i) * run1TreadDepth;
+      box(stairTreadWidth, stepThick, run1TreadDepth - 1, C.stairs,
+        run1X, stepY - stepThick, stepZ, groups.furniture);
     }
 
-    // Corner landing — square platform at the turn, against interior wall
-    const landingX = kitchenEnd;
-    const landingH = run1Rise + run1StepH;
-    box(landingSize, stepThickness, landingSize, C.stairs,
-      landingX, floorY + landingH - stepThickness, -halfW + WT, groups.furniture);
-    // Landing support wall
-    box(2, landingH, landingSize, C.stairs,
-      landingX, floorY, -halfW + WT, groups.furniture);
+    // ── Landing platform ──
+    const landingH = run1Rise + run1StepH;  // height at landing level
+    box(landingSize, stepThick, landingSize, C.stairs,
+      landingX, floorY + landingH - stepThick, landingZ, groups.furniture);
+    // Support column under landing
+    box(4, landingH, 4, C.stairs,
+      landingX + landingSize - 6, floorY, landingZ + 2, groups.furniture);
+    box(4, landingH, 4, C.stairs,
+      landingX + 2, floorY, landingZ + landingSize - 6, groups.furniture);
 
-    // Run 2 — PERPENDICULAR: from landing, going across the width (z-direction, away from interior wall)
-    // Treads face z-direction, stair run extends outward from the interior wall
-    const run2Len = W - 2 * WT - landingSize - 8; // remaining width after landing
-    const run2Steps = 4;
-    const run2StepD = run2Len / run2Steps;
+    // ── Run 2: x-direction, 5 steps, along interior wall toward loft ──
+    // Walking direction: toward bathroom (x decreasing)
+    // Treads span in z-direction (width = stairTreadWidth = 28")
+    // Against interior wall
+    const run2Steps = 5;
+    const run2StartX = landingX;  // starts at left edge of landing
+    const run2EndX = bathLength + 12;  // ends near loft opening
+    const run2Len = run2StartX - run2EndX;  // ~96"
+    const run2TreadDepth = run2Len / run2Steps;
     const run2Rise = totalRise - landingH;
     const run2StepH = run2Rise / run2Steps;
 
     for (let i = 0; i < run2Steps; i++) {
       const stepY = floorY + landingH + run2StepH * (i + 1);
-      const stepZ = -halfW + WT + landingSize + i * run2StepD;
-      // Tread — width in x-direction is stairWidth, depth in z-direction is run2StepD
-      box(stairWidth, stepThickness, run2StepD - 2, C.stairs,
-        landingX, stepY - stepThickness, stepZ, groups.furniture);
+      // Step i=0 is lowest (closest to landing), i=4 is highest (closest to loft)
+      const stepX = run2StartX - (i + 1) * run2TreadDepth;
+      box(run2TreadDepth - 1, stepThick, stairTreadWidth, C.stairs,
+        stepX, stepY - stepThick, landingZ, groups.furniture);
     }
 
-    // Woodstove — flush against interior wall, at the inside corner of the L
-    // Just to the right of the landing (between stairs and couch)
-    const stoveX = kitchenEnd + 4;
-    const stoveZ = -halfW + WT; // flush against interior wall
+    // ── Woodstove — inside corner of L, against interior wall, right of landing ──
+    const stoveX = landingX + landingSize + 6;  // right of the landing
+    const stoveZ = -halfW + WT;                  // flush against interior wall
     box(WOODSTOVE, 24, WOODSTOVE, C.stove, stoveX, floorY, stoveZ, groups.furniture);
 
     // Flue pipe straight up
