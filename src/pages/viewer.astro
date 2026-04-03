@@ -21,6 +21,7 @@ const base = import.meta.env.BASE_URL;
       </div>
       <label><input type="checkbox" id="toggle-roof" checked /> Roof</label>
       <label><input type="checkbox" id="toggle-loft" checked /> Loft</label>
+      <label><input type="checkbox" id="toggle-loft-walls" checked /> Loft walls</label>
       <label><input type="checkbox" id="toggle-furniture" checked /> Furniture</label>
       <label><input type="checkbox" id="toggle-porch" checked /> Porch</label>
       <label><input type="checkbox" id="toggle-walls" checked /> Walls</label>
@@ -40,7 +41,7 @@ const base = import.meta.env.BASE_URL;
     width: 100%;
     max-width: 900px;
     aspect-ratio: 16 / 10;
-    background: #1a1a2e;
+    background: #d4dce8;
     border-radius: 10px;
     overflow: hidden;
     margin: 1rem 0 2rem;
@@ -174,8 +175,8 @@ const base = import.meta.env.BASE_URL;
   const info = document.getElementById('viewer-info')!;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x1a1a2e);
-  scene.fog = new THREE.Fog(0x1a1a2e, 800, 1600);
+  scene.background = new THREE.Color(0xd4dce8);
+  scene.fog = new THREE.Fog(0xd4dce8, 900, 1800);
 
   const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 1, 3000);
   camera.position.set(300, 250, 400);
@@ -196,10 +197,10 @@ const base = import.meta.env.BASE_URL;
 
   // ── Lighting ──
 
-  const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+  const ambient = new THREE.AmbientLight(0xffffff, 0.8);
   scene.add(ambient);
 
-  const sun = new THREE.DirectionalLight(0xfff5e0, 1.0);
+  const sun = new THREE.DirectionalLight(0xfff8e8, 1.2);
   sun.position.set(200, 400, 300);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
@@ -209,15 +210,20 @@ const base = import.meta.env.BASE_URL;
   sun.shadow.camera.bottom = -400;
   scene.add(sun);
 
-  const fill = new THREE.DirectionalLight(0xc0d0ff, 0.3);
+  const fill = new THREE.DirectionalLight(0xd0e0ff, 0.5);
   fill.position.set(-200, 200, -100);
   scene.add(fill);
+
+  const backFill = new THREE.DirectionalLight(0xffffff, 0.3);
+  backFill.position.set(-100, 100, -300);
+  scene.add(backFill);
 
   // ── Groups for toggle visibility ──
 
   const groups: Record<string, THREE.Group> = {
     roof: new THREE.Group(),
     loft: new THREE.Group(),
+    'loft-walls': new THREE.Group(),
     furniture: new THREE.Group(),
     porch: new THREE.Group(),
     walls: new THREE.Group(),
@@ -291,19 +297,108 @@ const base = import.meta.env.BASE_URL;
   ground.receiveShadow = true;
   scene.add(ground);
 
-  // ── Trailer frame ──
+  // ── Trailer frame (based on Iron Eagle PAD-20k28 spec) ──
+  // A=336", B=326", C=148" axle spread, D=89" rear, E=99" tongue-to-first-axle
+  // Frame width 100" (8'4"), deck height ~22", triple 7k axles, 21k GVWR
 
-  box(TRAILER_LENGTH + 12, 6, TRAILER_WIDTH + 4, C.trailer, -6, TRAILER_DECK_HEIGHT - 8, -halfW - 2);
-  // Wheels (simple cylinders)
-  for (const xPos of [60, TRAILER_LENGTH - 60]) {
-    for (const zSide of [-1, 1]) {
-      const wheelGeo = new THREE.CylinderGeometry(8, 8, 4, 16);
-      const wheelMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.5 });
-      const wheel = new THREE.Mesh(wheelGeo, wheelMat);
-      wheel.rotation.x = Math.PI / 2;
-      wheel.position.set(xPos, 8, zSide * (halfW + 4));
-      scene.add(wheel);
+  const frameW = 100;                    // 8'4" standard frame width
+  const halfFW = frameW / 2;
+  const railH = 6;                       // frame rail height
+  const railW = 3;                       // C-channel width
+  const crossH = 6;                      // crossmembers recessed 6" below top
+  const deckY = TRAILER_DECK_HEIGHT;     // top of frame = floor level
+  const tongueLen = 51;                  // tongue length
+  const wheelR = 12.5;                   // ~25" diameter tires
+
+  // PAD-20k28 axle positions (measured from rear of frame)
+  // D=89" rear overhang, C=148" axle spread across 3 axles (74" between each)
+  // Rear axle at 89" from rear, middle at 89+74=163", front at 89+148=237" from rear
+  const axleFromRear = [89, 89 + 74, 89 + 148];
+  const axleXPositions = axleFromRear.map(d => TRAILER_LENGTH - d);
+
+  // Main frame rails (two C-channels running full length)
+  box(TRAILER_LENGTH, railH, railW, C.trailer, 0, deckY - railH, -halfFW, scene);
+  box(TRAILER_LENGTH, railH, railW, C.trailer, 0, deckY - railH, halfFW - railW, scene);
+
+  // Crossmembers (recessed 6" below top of frame, every ~24")
+  const crossCount = Math.floor(TRAILER_LENGTH / 24);
+  for (let i = 0; i <= crossCount; i++) {
+    const cx = i * 24;
+    if (cx <= TRAILER_LENGTH) {
+      box(2, crossH, frameW - 2 * railW, C.trailer,
+        cx - 1, deckY - railH - crossH, -halfFW + railW, scene);
     }
+  }
+
+  // Tongue (tapered — two rails converging to coupler)
+  const tongueStartZ = 18; // half-width at frame
+  for (const sign of [-1, 1]) {
+    const tGeo = new THREE.BufferGeometry();
+    const ty = deckY - railH;
+    const tVerts = new Float32Array([
+      // Top face of tongue rail
+      0, ty + 3, sign * tongueStartZ,
+      -tongueLen, ty + 3, sign * 3,
+      -tongueLen, ty + 3, sign * 1,
+      0, ty + 3, sign * tongueStartZ,
+      -tongueLen, ty + 3, sign * 1,
+      0, ty + 3, sign * (tongueStartZ - 2),
+      // Bottom face
+      0, ty, sign * tongueStartZ,
+      -tongueLen, ty, sign * 1,
+      -tongueLen, ty, sign * 3,
+      0, ty, sign * (tongueStartZ - 2),
+      -tongueLen, ty, sign * 1,
+      0, ty, sign * tongueStartZ,
+    ]);
+    tGeo.setAttribute('position', new THREE.BufferAttribute(tVerts, 3));
+    tGeo.computeVertexNormals();
+    const tMesh = new THREE.Mesh(tGeo, new THREE.MeshStandardMaterial({
+      color: C.trailer, roughness: 0.5, side: THREE.DoubleSide,
+    }));
+    scene.add(tMesh);
+  }
+
+  // Coupler (ball hitch) at end of tongue
+  const couplerGeo = new THREE.BoxGeometry(6, 6, 8);
+  const couplerMat = new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.4 });
+  const coupler = new THREE.Mesh(couplerGeo, couplerMat);
+  coupler.position.set(-tongueLen - 3, deckY - railH + 3, 0);
+  scene.add(coupler);
+
+  // Triple axles with wheels and tires
+  for (const axleX of axleXPositions) {
+    // Axle beam
+    box(3, 3, frameW + 8, C.trailer, axleX - 1.5, deckY - railH - crossH - 3, -halfFW - 4, scene);
+
+    // Wheels (both sides)
+    for (const zSide of [-1, 1]) {
+      // Tire
+      const tireGeo = new THREE.TorusGeometry(wheelR, 4, 8, 24);
+      const tireMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.9 });
+      const tire = new THREE.Mesh(tireGeo, tireMat);
+      tire.rotation.y = Math.PI / 2;
+      tire.position.set(axleX, wheelR, zSide * (halfFW + 6));
+      tire.castShadow = true;
+      scene.add(tire);
+
+      // Wheel hub
+      const hubGeo = new THREE.CylinderGeometry(5, 5, 3, 12);
+      const hubMat = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.3, metalness: 0.5 });
+      const hub = new THREE.Mesh(hubGeo, hubMat);
+      hub.rotation.x = Math.PI / 2;
+      hub.position.set(axleX, wheelR, zSide * (halfFW + 6));
+      scene.add(hub);
+    }
+  }
+
+  // Fender wells (arches over each axle group)
+  const fenderH = 8.5;
+  const fenderGroupLen = 148 + 20; // covers all 3 axles with margin
+  const fenderGroupX = axleXPositions[2] - 10; // start at front axle - margin
+  for (const zSide of [-1, 1]) {
+    const fz = zSide > 0 ? halfFW - 1 : -halfFW - 2;
+    box(fenderGroupLen, fenderH, 3, C.trailer, fenderGroupX, deckY - railH, fz, scene);
   }
 
   // ── Main floor ──
@@ -445,6 +540,31 @@ const base = import.meta.env.BASE_URL;
   // Partial wall at foot of bed
   wallBox(WT, 36, TRAILER_WIDTH - 2 * WT, C.wallsInterior,
     WT + 84, loftY + LOFT_FLOOR_THICKNESS, -halfW + WT, groups.loft);
+
+  // ── Loft / second floor walls ──
+  // These extend from loft floor to roof — the upper portion of the exterior walls
+  // Only over the loft area (bathroom end + 2' into kitchen)
+
+  const loftWallH = MAX_ROOF_TOP - MAIN_CEILING_HEIGHT - LOFT_FLOOR_THICKNESS;
+  const loftWallY = loftY + LOFT_FLOOR_THICKNESS;
+
+  // Interior wall (top in plan) — loft section
+  wallBox(LOFT_LENGTH, loftWallH, WT, C.walls,
+    0, loftWallY, -halfW, groups['loft-walls']);
+  // Porch side wall (bottom in plan) — loft section
+  wallBox(LOFT_LENGTH, loftWallH, WT, C.walls,
+    0, loftWallY, halfW - WT, groups['loft-walls']);
+  // Gable end wall (bathroom end, left)
+  wallBox(WT, loftWallH, TRAILER_WIDTH, C.walls,
+    0, loftWallY, -halfW, groups['loft-walls']);
+  // Partial end wall at loft/kitchen transition (with stair opening)
+  // This wall only covers the area not taken by the stair well
+  // Stair well is against interior wall, ~28" wide
+  wallBox(WT, loftWallH, TRAILER_WIDTH - WT - 30, C.wallsInterior,
+    LOFT_LENGTH, loftWallY, -halfW + WT + 30, groups['loft-walls']);
+
+  // Gable window in loft (bathroom end)
+  windowPane(48, loftWallH * 0.7, WT / 2, loftWallY + loftWallH * 0.4, 0, Math.PI / 2);
 
   // ── Roof (dynamic — rebuilt on style change) ──
 
@@ -633,7 +753,7 @@ const base = import.meta.env.BASE_URL;
 
   // ── Toggle controls ──
 
-  const toggles = ['roof', 'loft', 'furniture', 'porch', 'walls'] as const;
+  const toggles = ['roof', 'loft', 'loft-walls', 'furniture', 'porch', 'walls'] as const;
   for (const name of toggles) {
     const el = document.getElementById(`toggle-${name}`) as HTMLInputElement;
     el?.addEventListener('change', () => {
