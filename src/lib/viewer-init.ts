@@ -78,8 +78,11 @@ scene.background = new THREE.Color(0xd4dce8);
 scene.fog = new THREE.Fog(0xd4dce8, 500, 1000);
 
 const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 1, 3000);
-// View from bathroom end looking toward living end, elevated, slightly from porch side
-camera.position.set(-cfg.trailerLength * 0.15, 160, cfg.trailerWidth * 1.5);
+// Elevated 3/4 view from porch side, seeing the whole house
+// x: offset toward living end to see the bathroom end in foreground
+// y: elevated for a good overview angle
+// z: out on the porch side, far enough to see the full width
+camera.position.set(cfg.trailerLength * 0.65, 200, cfg.trailerWidth * 3);
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(container.clientWidth, container.clientHeight);
@@ -88,8 +91,8 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const controls = new OrbitControls(camera, renderer.domElement);
-// Target: center of house at about mid-wall height
-controls.target.set(cfg.trailerLength / 2, 22 + cfg.mainCeilingHeight * 0.5, 0);
+// Target: center of house at about mid-wall height, centered on trailer
+controls.target.set(cfg.trailerLength * 0.4, 22 + cfg.mainCeilingHeight * 0.4, 0);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
 controls.minDistance = 100;
