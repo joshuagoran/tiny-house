@@ -427,7 +427,11 @@ export function buildHouse(cfg: HouseConfig, groups: Groups, scene: THREE.Object
   // ── Loft ──
   const loftY = floorY + wallH;
 
-  box(loftLength, loftFloorH, W - 2 * WT, C.loftFloor, WT, loftY, -halfW + WT, groups.loft);
+  // Loft floor — extends to where stairs arrive for L-stairs, or loftLength for straight
+  // L-stairs run 2: 5 steps × 10" = 50", starts at kitchenEnd (180), ends at 130
+  const loftFloorEnd = cfg.stairStyle === 'L-shape' ? kitchenEnd - 5 * 10 : loftLength;
+  const actualLoftLen = loftFloorEnd - WT;
+  box(actualLoftLen, loftFloorH, W - 2 * WT, C.loftFloor, WT, loftY, -halfW + WT, groups.loft);
 
   // King bed — centered across width
   const bedW = 76;
@@ -446,25 +450,19 @@ export function buildHouse(cfg: HouseConfig, groups: Groups, scene: THREE.Object
   box(ledgeLen, 6, (interiorW - bedW) / 2, C.furniture,
     bedX, loftY + loftFloorH, bedZ + bedW, groups.loft);
 
-  // Partial wall at foot of bed
+  // Partial wall divider at foot of bed (36" tall, not full height)
   wallBox(WT, 36, W - 2 * WT, C.wallsInterior, WT + 84, loftY + loftFloorH, -halfW + WT, groups.loft);
 
-  // ── Second floor walls ──
+  // ── Second floor exterior walls ──
   const loftWallH = MAX_ROOF_TOP - wallH - loftFloorH;
   const loftWallY = loftY + loftFloorH;
 
-  // Full-length exterior walls above first floor ceiling
   wallBox(L, loftWallH, WT, C.walls, 0, loftWallY, -halfW, groups['loft-walls']);           // interior
   wallBox(L, loftWallH, WT, C.walls, 0, loftWallY, halfW - WT, groups['loft-walls']);       // porch
   wallBox(WT, loftWallH, W, C.walls, 0, loftWallY, -halfW, groups['loft-walls']);            // bath gable
   wallBox(WT, loftWallH, W, C.walls, L - WT, loftWallY, -halfW, groups['loft-walls']);       // living gable
 
-  // Loft end wall at loft/open transition — on INTERIOR WALLS group
-  // Opening for stairs: stairs arrive against interior wall, opening is ~28" wide on that side
-  // Solid wall section on porch side (from porch wall to stair opening)
-  const stairOpeningWidth = STAIR_DEPTH + 4; // 32" opening for stairs
-  wallBox(WT, loftWallH, W - 2 * WT - stairOpeningWidth, C.wallsInterior,
-    loftLength, loftWallY, -halfW + WT + stairOpeningWidth, groups['int-walls']);
+  // No full wall at loft transition — just the partial divider above
 
   // Gable window in loft
   windowPane(48, loftWallH * 0.7, WT / 2, loftWallY + loftWallH * 0.4, 0, groups['loft-walls'], Math.PI / 2);
