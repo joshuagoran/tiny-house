@@ -65,7 +65,7 @@ const PORCH_DECK_HEIGHT = 16;
 const COUNTER_HEIGHT = 36;
 const STAIR_DEPTH = 28;
 const MAX_ROOF_TOP = 162 - TRAILER_DECK_HEIGHT; // 140" above deck
-const ENTRY_DOOR_W = 32;
+const ENTRY_DOOR_W = 36;
 const WOODSTOVE = 16;
 
 export type Groups = Record<string, THREE.Group>;
@@ -418,7 +418,7 @@ export function buildHouse(cfg: HouseConfig, groups: Groups, scene: THREE.Object
   }
 
   // Entry door
-  const doorGeo = new THREE.PlaneGeometry(32, 78);
+  const doorGeo = new THREE.PlaneGeometry(36, 80);
   const door = new THREE.Mesh(doorGeo, new THREE.MeshStandardMaterial({ color: 0x6a5a40, roughness: 0.6, side: THREE.DoubleSide }));
   door.position.set(kitchenEnd + 24, floorY + 39, halfW);
   door.rotation.y = Math.PI * 0.15;
