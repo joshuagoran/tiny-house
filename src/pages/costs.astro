@@ -1,0 +1,254 @@
+---
+import Layout from "../layouts/Layout.astro";
+const base = import.meta.env.BASE_URL;
+---
+
+<Layout title="Cost Estimate">
+  <span class="page-tag">Budget</span>
+  <h1>Cost Estimate — 26' &times; 10'</h1>
+  <p class="lead">Material costs only. No labor, no permits, no tools. Porch estimated separately. 10% contingency included.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Category</th><th>Low</th><th>High</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><a href="#trailer"><strong>Trailer</strong></a></td><td>$9,324</td><td>$9,324</td></tr>
+        <tr><td><a href="#framing"><strong>Framing</strong></a></td><td>$3,200</td><td>$4,500</td></tr>
+        <tr><td><a href="#insulation"><strong>Insulation</strong></a></td><td>$5,010</td><td>$5,110</td></tr>
+        <tr><td><a href="#roofing"><strong>Roofing</strong></a></td><td>$1,450</td><td>$1,550</td></tr>
+        <tr><td><a href="#siding"><strong>Siding</strong></a></td><td>$1,000</td><td>$1,500</td></tr>
+        <tr><td><a href="#windows"><strong>Windows &amp; Doors</strong></a></td><td>$3,250</td><td>$5,950</td></tr>
+        <tr><td><a href="#finishes"><strong>Interior Finishes</strong></a></td><td>$2,400</td><td>$4,600</td></tr>
+        <tr><td><a href="#plumbing"><strong>Plumbing</strong></a></td><td>$900</td><td>$1,550</td></tr>
+        <tr><td><a href="#electrical"><strong>Electrical</strong></a></td><td>$1,350</td><td>$2,250</td></tr>
+        <tr><td><a href="#appliances"><strong>Appliances</strong></a></td><td>$9,300</td><td>$12,050</td></tr>
+        <tr><td><a href="#solar"><strong>Solar + Battery</strong></a></td><td>$8,600</td><td>$11,100</td></tr>
+        <tr><td><a href="#rainwater"><strong>Rainwater</strong></a></td><td>$880</td><td>$1,850</td></tr>
+        <tr style="border-top: 2px solid var(--border);"><td><strong>Subtotal</strong></td><td><strong>$46,664</strong></td><td><strong>$61,334</strong></td></tr>
+        <tr><td>Contingency (10%)</td><td>$4,666</td><td>$6,133</td></tr>
+        <tr style="background: var(--accent-light);"><td><strong>Total</strong></td><td><strong>$51,330</strong></td><td><strong>$67,467</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="trailer">1. Trailer</h2>
+  <p><a href="https://www.ironeagletinyhousetrailers-mobile.com/10-ft-wide" target="_blank" rel="noopener">PAD-14k26x10'wide</a> — dual 7k axles, 14,000 GVWR, 118" frame width.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Item</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td>PAD-14k26x10'wide base</td><td>$8,170</td></tr>
+        <tr><td>Galvanized belly pan ($29/ft &times; 26')</td><td>$754</td></tr>
+        <tr><td>Leveling jacks (set of 4)</td><td>$290</td></tr>
+        <tr><td>Fender flashing (pair)</td><td>$110</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="framing">2. Framing — $3,200–4,500</h2>
+  <p>2&times;4 walls with exterior continuous insulation. Maximizes interior width (113") and saves weight vs 2&times;6.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Item</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td>Wall studs, plates, headers (~200 studs + plates)</td><td>$800–1,000</td></tr>
+        <tr><td>Roof rafters (2&times;6 or 2&times;8, ~15 rafters + ridge)</td><td>$400–600</td></tr>
+        <tr><td>Loft floor joists (2&times;8 or 2&times;10, 8' span)</td><td>$200–300</td></tr>
+        <tr><td>Subfloor sheathing (3/4" T&amp;G plywood, ~260 sq ft)</td><td>$500–700</td></tr>
+        <tr><td>Wall sheathing (1/2" plywood or OSB, ~720 sq ft)</td><td>$600–900</td></tr>
+        <tr><td>Roof sheathing (1/2" plywood, ~286 sq ft)</td><td>$300–400</td></tr>
+        <tr><td>Misc blocking, nailers, trim lumber</td><td>$200–300</td></tr>
+        <tr><td>Fasteners, hardware, hangers, straps</td><td>$200–300</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="insulation">3. Insulation &amp; Air Sealing — $5,010–5,110</h2>
+  <p>2&times;4 cavity: <a href="https://www.rockwool.com/north-america/products-and-applications/products/comfortbatt/" target="_blank" rel="noopener">Rockwool R-15</a>. Exterior continuous: <a href="https://gutex.com/" target="_blank" rel="noopener">Gutex</a>/<a href="https://www.steico.com/en" target="_blank" rel="noopener">Steico</a> wood fiber board (1.5", R-6). Total wall R-21 with no thermal bridging.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Item</th><th>Qty</th><th>$/sf</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td>Rockwool ComfortBatt R-15 (walls)</td><td>~720 sf</td><td>$1.40</td><td>$1,010</td></tr>
+        <tr><td>Rockwool ComfortBatt R-15 (floor)</td><td>~260 sf</td><td>$1.40</td><td>$365</td></tr>
+        <tr><td>Rockwool R-30 or dense-pack cellulose (roof)</td><td>~286 sf</td><td>$1.80</td><td>$515</td></tr>
+        <tr><td>Gutex/Steico wood fiber board 1.5" (exterior)</td><td>~720 sf</td><td>$3.50</td><td>$2,520</td></tr>
+        <tr><td>Intello Plus smart vapor retarder</td><td>~900 sf</td><td>$0.50</td><td>$450</td></tr>
+        <tr><td>Air sealing tapes (Tescon, Uni Tape)</td><td>—</td><td>—</td><td>$150–250</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">
+    <p><strong>Budget option:</strong> substituting rigid mineral wool board (~$1.50/sf) for Gutex saves ~$1,400. Gutex is premium but does double duty as insulation + sheathing + vapor management.</p>
+  </div>
+
+  <h2 id="roofing">4. Roofing — $1,450–1,550</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Item</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td>Galvalume standing seam panels (~286 sf @ $3.50/sf)</td><td>$1,000</td></tr>
+        <tr><td>Synthetic underlayment</td><td>$100</td></tr>
+        <tr><td>Ridge cap, flashing, sealant</td><td>$150</td></tr>
+        <tr><td>Gutters (both sides for rainwater catchment)</td><td>$200–300</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="siding">5. Siding — $1,000–1,500</h2>
+  <p>Hemlock from local mill, rough sawn. Budget $1.50–2.50/bf. Highly variable by region and mill.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Item</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td>Hemlock boards (~500 sf with waste)</td><td>$800–1,200</td></tr>
+        <tr><td>Rain screen furring strips</td><td>$100–150</td></tr>
+        <tr><td>Stain/sealer (dark/black)</td><td>$100–150</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="windows">6. Windows &amp; Doors — $3,250–5,950</h2>
+  <p>Saving windows for last. Reclaimed could cut this significantly.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Item</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td>Windows (6–8, mix of sizes)</td><td>$2,000–4,000</td></tr>
+        <tr><td><a href="https://www.velux.com/what-we-do/products/skylights" target="_blank" rel="noopener">Velux</a> 30&times;30 venting skylight (&times;2)</td><td>$800–1,200</td></tr>
+        <tr><td>Entry door (exterior, insulated)</td><td>$300–500</td></tr>
+        <tr><td>Pocket door (interior, bathroom)</td><td>$150–250</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="finishes">7. Interior Finishes — $2,400–4,600</h2>
+  <p>Locally milled paneling, exposed beams, timber slab counters. Salvage and local sourcing keep this down.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Item</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td>VJ board / shiplap (locally milled, ~900 sf)</td><td>$1,000–1,800</td></tr>
+        <tr><td>Exposed timber beams (decorative)</td><td>$200–400</td></tr>
+        <tr><td>Timber slab counters — kitchen + bath</td><td>$200–500</td></tr>
+        <tr><td>Flooring (hardwood, reclaimed, or engineered)</td><td>$500–1,000</td></tr>
+        <tr><td>Bathroom tile (patterned terracotta, ~40 sf)</td><td>$200–400</td></tr>
+        <tr><td>Trim, baseboard, misc finish lumber</td><td>$200–300</td></tr>
+        <tr><td>Paint / finish (natural oil, wax, low-VOC)</td><td>$100–200</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="plumbing">8. Plumbing — $900–1,550</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Item</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td>PEX tubing, fittings, manifold</td><td>$200–300</td></tr>
+        <tr><td>Drain/waste/vent pipe and fittings</td><td>$150–250</td></tr>
+        <tr><td>Shower pan / waterproofing</td><td>$150–300</td></tr>
+        <tr><td><a href="https://www.brondell.com/nebia-yuba-5-setting-handshower-with-halonetic-double-docking-system/" target="_blank" rel="noopener">Brondell Nebia Yuba</a> handshower</td><td>$100–150</td></tr>
+        <tr><td>Brass fixtures (bath faucet, kitchen faucet)</td><td>$200–400</td></tr>
+        <tr><td>Misc valves, connectors, supply lines</td><td>$100–150</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="electrical">9. Electrical — $1,350–2,250</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Item</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td>50A inlet plug + breaker panel</td><td>$200–300</td></tr>
+        <tr><td>Romex wire, boxes, outlets, switches</td><td>$300–500</td></tr>
+        <tr><td>LED lighting fixtures</td><td>$200–400</td></tr>
+        <tr><td>Smart load management panel</td><td>$500–800</td></tr>
+        <tr><td>Misc conduit, connectors, GFCI/AFCI breakers</td><td>$150–250</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="appliances">10. Appliances — $9,300–12,050</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Item</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td>Induction cooktop (Summit/True Induction 2-burner)</td><td>$200–350</td></tr>
+        <tr><td><a href="https://www.breville.com/en-us/product/bov900" target="_blank" rel="noopener">Breville BOV900</a> air fryer oven</td><td>$350</td></tr>
+        <tr><td><a href="https://www.fisherpaykel.com/us/dishwashing/integrated-dishwashers/series-9-integrated-tall-single-dishdrawer-dishwasher-dd24sti9-n-82341.html" target="_blank" rel="noopener">Fisher + Paykel DishDrawer</a></td><td>$1,000–1,100</td></tr>
+        <tr><td><a href="https://www.ikea.com/us/en/p/superkall-built-in-panel-ready-refrigerator-panel-ready-10462156/" target="_blank" rel="noopener">IKEA SUPERKALL</a> fridge</td><td>$900</td></tr>
+        <tr><td><a href="https://www.bosch-home.com/us/products/washing-and-drying/washer-dryer-combos" target="_blank" rel="noopener">Bosch compact W/D combo</a> (24")</td><td>$1,500–1,800</td></tr>
+        <tr><td>AO Smith EJC-10 water heater (bathroom)</td><td>$250–300</td></tr>
+        <tr><td><a href="https://www.stiebel-eltron-usa.com/products/shc-mini-tank-electric-water-heaters" target="_blank" rel="noopener">Stiebel Eltron SHC 2.5</a> (kitchen)</td><td>$200–250</td></tr>
+        <tr><td>Minisplit heat pump (9–12K BTU)</td><td>$1,200–2,000</td></tr>
+        <tr><td><a href="https://www.tinywoodstove.com/product/dwarf-cookstove/" target="_blank" rel="noopener">Dwarf 5kW Cookstove Combo</a> + air intake</td><td>$1,600–1,700</td></tr>
+        <tr><td>Range hood (compact)</td><td>$100–200</td></tr>
+        <tr><td><a href="https://www.clivusmultrum.eu/" target="_blank" rel="noopener">Clivus Multrum LP</a> composting toilet</td><td>$2,000–3,000</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="decision">
+    <p><strong>Clivus Multrum LP</strong> is a wildcard — Australian product, US availability/shipping TBD. Budget placeholder.</p>
+  </div>
+
+  <h2 id="solar">11. Solar + Battery — $8,600–11,100</h2>
+  <p>Renogy B-lite starter config. Expandable — add 4 more batteries later (~$2,700–3,200).</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Item</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td>8–10 &times; 400W solar panels (~3.5–4 kW) ground-mounted</td><td>$2,000–2,800</td></tr>
+        <tr><td>Ground mount racking</td><td>$800–1,200</td></tr>
+        <tr><td><a href="https://www.sol-ark.com/residential/" target="_blank" rel="noopener">Sol-Ark 5K-1P</a> hybrid inverter</td><td>$2,100</td></tr>
+        <tr><td>4&times; <a href="https://www.renogy.com/products/core-12v-200ah-lithium-iron-phosphate-battery-w-bluetooth" target="_blank" rel="noopener">Renogy Core 12V 200Ah</a> LFP (4S = 48V, 10.24 kWh)</td><td>$2,700–3,200</td></tr>
+        <tr><td>Wiring, combiner box, breakers, conduit</td><td>$500–800</td></tr>
+        <tr><td>Outbuilding / shed for electrical</td><td>$500–1,000</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="rainwater">12. Rainwater System — $880–1,850</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Item</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td>Storage tank (500–1,000 gal, food-grade)</td><td>$300–800</td></tr>
+        <tr><td>First flush diverter</td><td>$50–100</td></tr>
+        <tr><td>Leaf screen / debris filter</td><td>$30–50</td></tr>
+        <tr><td>12V pressure pump</td><td>$100–200</td></tr>
+        <tr><td>5-stage filtration system</td><td>$300–500</td></tr>
+        <tr><td>Piping, fittings, tank connections</td><td>$100–200</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Porch (separate)</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Item</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td>Decking lumber (3 sections, ~216 sf)</td><td>$600–1,000</td></tr>
+        <tr><td>4&times;4 posts</td><td>$100–150</td></tr>
+        <tr><td>Polycarbonate roofing panels (~216 sf)</td><td>$400–700</td></tr>
+        <tr><td>Adjustable post feet / concrete block footings</td><td>$100–200</td></tr>
+        <tr><td>Hardware, bolts, brackets</td><td>$150–250</td></tr>
+        <tr style="background: var(--accent-light);"><td><strong>Porch total</strong></td><td><strong>$1,350–2,300</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Where to Save</h2>
+  <ul>
+    <li><strong>Gutex &rarr; rigid mineral wool:</strong> saves ~$1,400</li>
+    <li><strong>Reclaimed windows:</strong> saves $1,500–3,000</li>
+    <li><strong>DishDrawer &rarr; compact dishwasher:</strong> saves ~$500</li>
+    <li><strong>Local mill for siding + paneling:</strong> already assumed, but direct-from-sawyer could be even less</li>
+  </ul>
+
+  <div class="page-nav">
+    <a href={`${base}open-questions/`}>&larr; Open Questions</a>
+    <a href={`${base}viewer-26x10/`} class="next">26' &times; 10' Viewer &rarr;</a>
+  </div>
+</Layout>
