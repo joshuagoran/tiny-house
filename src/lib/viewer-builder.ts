@@ -417,11 +417,10 @@ export function buildHouse(cfg: HouseConfig, groups: Groups, scene: THREE.Object
       kitchenEnd + 30, floorY, -halfW + WT + STAIR_DEPTH + 8, groups.furniture);
   }
 
-  // Entry door
+  // Entry door — flush with outer face of porch-side wall
   const doorGeo = new THREE.PlaneGeometry(36, 80);
   const door = new THREE.Mesh(doorGeo, new THREE.MeshStandardMaterial({ color: 0x6a5a40, roughness: 0.6, side: THREE.DoubleSide }));
-  door.position.set(kitchenEnd + 24, floorY + 39, halfW);
-  door.rotation.y = Math.PI * 0.15;
+  door.position.set(kitchenEnd + 24, floorY + 40, halfW - WT);
   groups.walls.add(door);
 
   // ── Loft ──
