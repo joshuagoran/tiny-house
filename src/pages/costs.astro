@@ -11,26 +11,30 @@ const base = import.meta.env.BASE_URL;
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>Category</th><th>Low</th><th>High</th></tr>
+        <tr><th>Category</th><th>Bootstrap</th><th>Mid</th><th>Full</th></tr>
       </thead>
       <tbody>
-        <tr><td><a href="#trailer"><strong>Trailer</strong></a></td><td>$9,324</td><td>$9,324</td></tr>
-        <tr><td><a href="#framing"><strong>Framing</strong></a></td><td>$3,200</td><td>$4,500</td></tr>
-        <tr><td><a href="#insulation"><strong>Insulation</strong></a></td><td>$4,170</td><td>$5,110</td></tr>
-        <tr><td><a href="#roofing"><strong>Roofing</strong></a></td><td>$1,450</td><td>$1,550</td></tr>
-        <tr><td><a href="#siding"><strong>Siding</strong></a></td><td>$1,000</td><td>$1,500</td></tr>
-        <tr><td><a href="#windows"><strong>Windows &amp; Doors</strong></a></td><td>$3,250</td><td>$5,950</td></tr>
-        <tr><td><a href="#finishes"><strong>Interior Finishes</strong></a></td><td>$2,400</td><td>$4,600</td></tr>
-        <tr><td><a href="#plumbing"><strong>Plumbing</strong></a></td><td>$900</td><td>$1,550</td></tr>
-        <tr><td><a href="#electrical"><strong>Electrical</strong></a></td><td>$1,350</td><td>$2,250</td></tr>
-        <tr><td><a href="#appliances"><strong>Appliances</strong></a></td><td>$9,300</td><td>$12,050</td></tr>
-        <tr><td><a href="#solar"><strong>Solar + Battery</strong></a></td><td>$8,600</td><td>$11,100</td></tr>
-        <tr><td><a href="#rainwater"><strong>Rainwater</strong></a></td><td>$880</td><td>$1,850</td></tr>
-        <tr style="border-top: 2px solid var(--border);"><td><strong>Subtotal</strong></td><td><strong>$45,824</strong></td><td><strong>$61,334</strong></td></tr>
-        <tr><td>Contingency (10%)</td><td>$4,582</td><td>$6,133</td></tr>
-        <tr style="background: var(--accent-light);"><td><strong>Total</strong></td><td><strong>$50,406</strong></td><td><strong>$67,467</strong></td></tr>
+        <tr><td><a href="#trailer"><strong>Trailer</strong></a></td><td>$9,324</td><td>$9,324</td><td>$9,324</td></tr>
+        <tr><td><a href="#framing"><strong>Framing</strong></a></td><td>$3,200</td><td>$3,850</td><td>$4,500</td></tr>
+        <tr><td><a href="#insulation"><strong>Insulation</strong></a></td><td>$4,170</td><td>$4,220</td><td>$5,110</td></tr>
+        <tr><td><a href="#roofing"><strong>Roofing</strong></a></td><td>$1,450</td><td>$1,500</td><td>$1,550</td></tr>
+        <tr><td><a href="#siding"><strong>Siding</strong></a></td><td>$1,000</td><td>$1,250</td><td>$1,500</td></tr>
+        <tr><td><a href="#windows"><strong>Windows &amp; Doors</strong></a></td><td>$1,500</td><td>$3,250</td><td>$5,950</td></tr>
+        <tr><td><a href="#finishes"><strong>Interior Finishes</strong></a></td><td>$1,800</td><td>$2,400</td><td>$4,600</td></tr>
+        <tr><td><a href="#plumbing"><strong>Plumbing</strong></a></td><td>$800</td><td>$900</td><td>$1,550</td></tr>
+        <tr><td><a href="#electrical"><strong>Electrical</strong></a></td><td>$1,000</td><td>$1,350</td><td>$2,250</td></tr>
+        <tr><td><a href="#appliances"><strong>Appliances</strong></a></td><td>$5,000</td><td>$9,300</td><td>$12,050</td></tr>
+        <tr><td><a href="#solar"><strong>Solar + Battery</strong></a></td><td>$0</td><td>$8,600</td><td>$11,100</td></tr>
+        <tr><td><a href="#rainwater"><strong>Rainwater</strong></a></td><td>$600</td><td>$880</td><td>$1,850</td></tr>
+        <tr style="border-top: 2px solid var(--border);"><td><strong>Subtotal</strong></td><td><strong>$29,844</strong></td><td><strong>$46,824</strong></td><td><strong>$61,334</strong></td></tr>
+        <tr><td>Contingency (10%)</td><td>$2,984</td><td>$4,682</td><td>$6,133</td></tr>
+        <tr style="background: var(--accent-light);"><td><strong>Total</strong></td><td><strong>$32,828</strong></td><td><strong>$51,506</strong></td><td><strong>$67,467</strong></td></tr>
       </tbody>
     </table>
+  </div>
+
+  <div class="decision">
+    <p><strong>Bootstrap</strong> = get the shell livable on grid power with basic appliances, reclaimed windows, simpler finishes. Add solar, upgrade appliances, and finish details over time. <strong>Mid</strong> = Comfortboard insulation, new windows, full appliances, Renogy B-lite solar. <strong>Full</strong> = Gutex insulation, Velux skylights, premium everything.</p>
   </div>
 
   <h2 id="trailer">1. Trailer</h2>
@@ -259,12 +263,34 @@ const base = import.meta.env.BASE_URL;
     </table>
   </div>
 
-  <h2>Where to Save</h2>
+  <h2>Bootstrap Build — What Changes</h2>
+  <p>Get the shell livable for ~$33k, then upgrade over time. The house is designed to be source-agnostic (grid/solar) and every system can be upgraded in place.</p>
+
+  <h3>Deferred to later</h3>
   <ul>
-    <li><strong>Gutex &rarr; rigid mineral wool:</strong> saves ~$1,400</li>
-    <li><strong>Reclaimed windows:</strong> saves $1,500–3,000</li>
-    <li><strong>DishDrawer &rarr; compact dishwasher:</strong> saves ~$500</li>
-    <li><strong>Local mill for siding + paneling:</strong> already assumed, but direct-from-sawyer could be even less</li>
+    <li><strong>Solar + battery ($8,600–11,100):</strong> use grid power via 50A inlet. Add solar when budget allows — Sol-Ark and wiring are designed for this</li>
+    <li><strong>Minisplit ($1,200–2,000):</strong> woodstove for heat, box fans for summer. Add minisplit when ready</li>
+    <li><strong>W/D combo ($1,500–1,800):</strong> laundromat until settled. Plumbing roughed in for later install</li>
+    <li><strong>DishDrawer ($1,000–1,100):</strong> hand wash. Cabinet space ready for later</li>
+  </ul>
+
+  <h3>Cheaper alternatives</h3>
+  <ul>
+    <li><strong>Windows:</strong> reclaimed from salvage yards / Habitat ReStore ($25–100 each vs $300–500). DIY fixed windows from tempered glass panels. Skip Velux skylights, use Sun Tunnels (~$200 each) or cheaper fixed skylights</li>
+    <li><strong>Composting toilet:</strong> Nature's Head (~$1,000) or DIY bucket system ($200–500) instead of Clivus Multrum ($2–3k)</li>
+    <li><strong>Fridge:</strong> basic compact (Danby, Magic Chef, $300–500) instead of IKEA SUPERKALL ($900)</li>
+    <li><strong>Interior finishes:</strong> drywall ceilings ($0.40/sf) instead of full shiplap. Stained plywood or concrete floors ($100–200) instead of hardwood. Skip bathroom tile, use FRP panels (~$100)</li>
+    <li><strong>Electrical:</strong> skip smart load management panel ($500–800), just manage loads manually</li>
+    <li><strong>Rainwater:</strong> IBC totes ($50–100 for 275 gal) instead of purpose-built tank. Simplify to 3-stage filtration</li>
+    <li><strong>Plumbing fixtures:</strong> standard chrome instead of brass. Saves $100–200</li>
+  </ul>
+
+  <h3>Don't cut these</h3>
+  <ul>
+    <li><strong>Trailer:</strong> the foundation. No place to cheap out</li>
+    <li><strong>Insulation + air sealing:</strong> envelope performance pays for itself in energy costs. Comfortboard option is already the budget path</li>
+    <li><strong>Metal roof:</strong> needed for rainwater catchment and longevity</li>
+    <li><strong>Woodstove:</strong> primary heat + backup cooking. Worth the $1,600</li>
   </ul>
 
   <div class="page-nav">
