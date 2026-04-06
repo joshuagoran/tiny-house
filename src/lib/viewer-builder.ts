@@ -450,8 +450,12 @@ export function buildHouse(cfg: HouseConfig, groups: Groups, scene: THREE.Object
   box(ledgeLen, 6, (interiorW - bedW) / 2, C.furniture,
     bedX, loftY + loftFloorH, bedZ + bedW, groups.loft);
 
-  // Partial wall divider near loft edge (36" tall, acts as railing at stair opening)
-  wallBox(WT, 36, W - 2 * WT, C.wallsInterior, loftFloorEnd - 6, loftY + loftFloorH, -halfW + WT, groups.loft);
+  // Partial wall divider near loft edge (36" tall) with walkthrough opening
+  // Opening on interior wall side (~30" wide) where stairs arrive
+  const loftOpeningW = 30;
+  // Porch-side section (from porch wall to the opening)
+  wallBox(WT, 36, W - 2 * WT - loftOpeningW, C.wallsInterior,
+    loftFloorEnd - 6, loftY + loftFloorH, -halfW + WT + loftOpeningW, groups.loft);
 
   // ── Second floor exterior walls ──
   const loftWallH = MAX_ROOF_TOP - wallH - loftFloorH;
